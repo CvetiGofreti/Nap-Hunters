@@ -12,7 +12,7 @@ defaultHeight = 64
 speed = 3
 gravityRed = 0
 gravityBlue = 0
-jumpSize = -17
+jumpSize = -20
 gameName = 'Nap Hunters'
 delayRespawn = 200
 
@@ -48,7 +48,9 @@ for i in range(floorsCount):
     pos = (width, height - (i + 1) * hightDistance) if isEven else (0, height - (i + 1) * hightDistance)
     
     floorRect = floorSurface.get_rect(**{align: pos})
-    floors.append((floorSurface, floorRect))
+    floorRectCollision = floorRect.copy()
+    floorRectCollision.height -= 30
+    floors.append((floorSurface, floorRect, floorRectCollision))
 
 while True:
     for event in pygame.event.get():
@@ -58,14 +60,52 @@ while True:
 
     keys = pygame.key.get_pressed()
 
+    gravityBlue += 1
+    playerBlueRect.y += gravityBlue
+
+    #if playerBlueRect.bottom > tableRect.top and playerBlueRect.left < tableRect.right:
+    #    playerBlueRect.bottom = tableRect.top
+    #    gravityBlue = 0
+
+    if playerBlueRect.bottom >= height + delayRespawn:
+        playerBlueRect.bottomleft = initialBluePosition
+        gravityBlue = 0
+
+    landed = False
+    for surface, rect, collisionRect in floors + [(tableSurface, tableRect, tableRect)]:
+        if (
+            playerBlueRect.colliderect(collisionRect)
+            and playerBlueRect.bottom <= collisionRect.top + 20
+            and gravityBlue > 0
+        ):
+            playerBlueRect.bottom = collisionRect.top
+            gravityBlue = 0
+            landed = True
+            break
+
+
+        elif (
+            playerBlueRect.colliderect(collisionRect)
+            and playerBlueRect.top >= collisionRect.bottom - 20
+            and gravityBlue < 0
+        ):
+            playerBlueRect.top = collisionRect.bottom
+            gravityBlue = 0
+            break
+
     if keys[pygame.K_d]:
         playerBlueRect.x += speed
 
     if keys[pygame.K_a]:
         playerBlueRect.x -= speed
 
-    if keys[pygame.K_w] and playerBlueRect.bottom >= tableRect.top:
-        gravityRed = jumpSize
+    if keys[pygame.K_w] and landed:
+        gravityBlue = jumpSize
+
+
+
+
+
 
     if keys[pygame.K_RIGHT]:
         playerRedRect.x += speed
@@ -73,23 +113,14 @@ while True:
     if keys[pygame.K_LEFT]:
         playerRedRect.x -= speed
 
-    gravityRed += 1
-    playerBlueRect.y += gravityRed
-
-    if playerBlueRect.bottom > tableRect.top and playerBlueRect.left < tableRect.right:
-        playerBlueRect.bottom = tableRect.top
-        gravityRed = 0
-
-    if playerBlueRect.bottom >= height + delayRespawn:
-        playerBlueRect.bottomleft = initialBluePosition
-
     screen.blit(wallSurface, (0,0))
     screen.blit(tableSurface, tableRect)
+    
+    for surface, rect, collisionRect in floors:
+        screen.blit(surface, rect)
+
     screen.blit(playerRedSurface, playerRedRect)
     screen.blit(playerBlueSurface, playerBlueRect)
-
-    for surface, rect in floors:
-        screen.blit(surface, rect)
 
     pygame.display.update()
     clock.tick(60)
