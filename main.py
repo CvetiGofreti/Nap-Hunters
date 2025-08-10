@@ -1,126 +1,45 @@
 import pygame
-from sys import exit
+from screens.main_menu import MainMenu
+from screens.level_builder import LevelBuilder
 
-pygame.init()
+def main():
+    pygame.init()
+    screenWidth = 960
+    screenHeight = 960
+    screen = pygame.display.set_mode((screenWidth, screenHeight))
+    pygame.display.set_caption("Nap Hunters")
+    clock = pygame.time.Clock()
 
-width = 960
-height = 960
-floorsCount = 5
-hightDistance = height / (floorsCount + 1)
-jumpGap = 192
-defaultHeight = 64
-speed = 3
-gravityRed = 0
-gravityBlue = 0
-jumpSize = -20
-gameName = 'Nap Hunters'
-delayRespawn = 200
+    fontMain = pygame.font.Font(None, 48)
+    fontSmall = pygame.font.Font(None, 24)
 
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption(gameName)
+    currentScreen = MainMenu(fontMain, fontSmall)
 
-clock = pygame.time.Clock()
+    backgroundImage = pygame.image.load("graphics/levels/wall.png").convert()
+    backgroundImage = pygame.transform.scale(backgroundImage, screen.get_size())
 
-wallSurface = pygame.image.load('graphics/levels/wall.png').convert_alpha()
-wallSurface = pygame.transform.scale(wallSurface, (width, height))
+    running = True
+    while running:
+        deltaTime = clock.tick(60) / 1000.0
 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            else:
+                action = currentScreen.handle_event(event)
+                if action == "quit":
+                    running = False
+                elif action == "levelBuilder":
+                    currentScreen = LevelBuilder(fontMain, fontSmall)
+                elif action == "mainMenu":
+                    currentScreen = MainMenu(fontMain, fontSmall)
 
-tableSurface = pygame.image.load('graphics/levels/startTable.png').convert_alpha()
-tableSurface = pygame.transform.scale(tableSurface, (jumpGap, defaultHeight - 20))
-tableRect = tableSurface.get_rect(bottomleft = (0, height))
+        currentScreen.update(deltaTime)
+        screen.blit(backgroundImage, (0, 0))
+        currentScreen.draw(screen)
+        pygame.display.flip()
 
-playerRedSurface = pygame.image.load('graphics/players/playerRed.png').convert_alpha()
-playerRedSurface = pygame.transform.scale(playerRedSurface, (50, 64))
-playerRedRect = playerRedSurface.get_rect(bottomleft = tableRect.topleft)
+    pygame.quit()
 
-playerBlueSurface = pygame.image.load('graphics/players/playerBlue.png').convert_alpha()
-playerBlueSurface = pygame.transform.scale(playerBlueSurface, (50, 64))
-initialBluePosition = (tableRect.topleft[0] + 64, tableRect.topleft[1])
-playerBlueRect = playerBlueSurface.get_rect(bottomleft = initialBluePosition)
-
-floorSurface = pygame.image.load('graphics/levels/floor.png').convert_alpha()
-floorSurface = pygame.transform.scale(floorSurface, (width - jumpGap, 64))
-floors = []
-
-for i in range(floorsCount):
-    isEven = (i % 2 == 0)
-    align = 'topright' if isEven else 'topleft'
-    pos = (width, height - (i + 1) * hightDistance) if isEven else (0, height - (i + 1) * hightDistance)
-    
-    floorRect = floorSurface.get_rect(**{align: pos})
-    floorRectCollision = floorRect.copy()
-    floorRectCollision.height -= 30
-    floors.append((floorSurface, floorRect, floorRectCollision))
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-
-    keys = pygame.key.get_pressed()
-
-    gravityBlue += 1
-    playerBlueRect.y += gravityBlue
-
-    #if playerBlueRect.bottom > tableRect.top and playerBlueRect.left < tableRect.right:
-    #    playerBlueRect.bottom = tableRect.top
-    #    gravityBlue = 0
-
-    if playerBlueRect.bottom >= height + delayRespawn:
-        playerBlueRect.bottomleft = initialBluePosition
-        gravityBlue = 0
-
-    landed = False
-    for surface, rect, collisionRect in floors + [(tableSurface, tableRect, tableRect)]:
-        if (
-            playerBlueRect.colliderect(collisionRect)
-            and playerBlueRect.bottom <= collisionRect.top + 20
-            and gravityBlue > 0
-        ):
-            playerBlueRect.bottom = collisionRect.top
-            gravityBlue = 0
-            landed = True
-            break
-
-
-        elif (
-            playerBlueRect.colliderect(collisionRect)
-            and playerBlueRect.top >= collisionRect.bottom - 20
-            and gravityBlue < 0
-        ):
-            playerBlueRect.top = collisionRect.bottom
-            gravityBlue = 0
-            break
-
-    if keys[pygame.K_d]:
-        playerBlueRect.x += speed
-
-    if keys[pygame.K_a]:
-        playerBlueRect.x -= speed
-
-    if keys[pygame.K_w] and landed:
-        gravityBlue = jumpSize
-
-
-
-
-
-
-    if keys[pygame.K_RIGHT]:
-        playerRedRect.x += speed
-
-    if keys[pygame.K_LEFT]:
-        playerRedRect.x -= speed
-
-    screen.blit(wallSurface, (0,0))
-    screen.blit(tableSurface, tableRect)
-    
-    for surface, rect, collisionRect in floors:
-        screen.blit(surface, rect)
-
-    screen.blit(playerRedSurface, playerRedRect)
-    screen.blit(playerBlueSurface, playerBlueRect)
-
-    pygame.display.update()
-    clock.tick(60)
+if __name__ == "__main__":
+    main()
