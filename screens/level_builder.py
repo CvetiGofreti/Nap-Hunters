@@ -1,7 +1,7 @@
-import pygame
-import os
+import pygame, os, json
 from tile_type import TileType
 from floor_type import FloorType
+from datetime import datetime
 
 tileSize = 64
 paletteWidth = 192
@@ -61,6 +61,27 @@ class LevelBuilder:
         self.selectedItemId = TileType.FLOOR
         self.hover_cell = None
 
+        #todo - make this not so hard coded
+        saveButtonHeight = 40
+        saveButtonMargin = 16
+        self.saveButtonRect = pygame.Rect(
+            self.screenWidth + 16,
+            self.screenHeight - saveButtonHeight - saveButtonMargin,
+            paletteWidth - 32,
+            saveButtonHeight
+        )
+        
+        #todo - make this not so hard coded
+        self.levelName = "Untitled"
+        self.inputActive = False
+        inputHeight = 32
+        self.inputRect = pygame.Rect(
+            self.screenWidth + 16,
+            self.saveButtonRect.y - inputHeight - 8,
+            paletteWidth - 32,
+            inputHeight
+        )
+
     def _pick_floor_variant(self, x, y):
         left  = (x > 0 and self.grid[y][x-1] == TileType.FLOOR)
         right = (x < self.tileCountWidth - 1 and self.grid[y][x+1] == TileType.FLOOR)
@@ -78,8 +99,8 @@ class LevelBuilder:
     def _bed_index_at(self, x, y):
         for index, bed in enumerate(self.beds):
             bedX, bedY = bed["pos"]
-            bedWidth, bedHight = bed["size"]
-            if (bedX <= x < bedX + bedWidth) and (bedY <= y < bedY + bedHight):
+            bedWidth, bedHeight = bed["size"]
+            if (bedX <= x < bedX + bedWidth) and (bedY <= y < bedY + bedHeight):
                 return index
         return None
 
@@ -92,6 +113,20 @@ class LevelBuilder:
             return ("player", playerIndex)
         return None
     
+    def _save_level(self):
+        os.makedirs("levels", exist_ok=True)
+        filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_level.json"
+        path = os.path.join("levels", filename)
+        data = {
+            "name": self.levelName,
+            "grid": [[cell.value for cell in row] for row in self.grid],
+            "players": [{"name": player["name"], "pos": player["pos"]} for player in self.players],
+            "beds": [{"name": bed["name"], "pos": bed["pos"], "size": bed["size"]} for bed in self.beds]
+        }
+        with open(path, "w") as file:
+            json.dump(data, file, indent=2)
+        print(f"Level saved: {path}")
+
     def _handle_click_event(self, event):
         mouseX, mouseY = event.pos
         if event.button == 1: self.leftDown = True
@@ -116,6 +151,14 @@ class LevelBuilder:
                     self.grid[gridY][gridX] = self.selectedItemId
                 elif event.button == 3:
                     self.grid[gridY][gridX] = TileType.EMPTY
+
+        if self.inputRect.collidepoint(mouseX, mouseY):
+            self.inputActive = True
+        else:
+            self.inputActive = False
+
+        if self.saveButtonRect.collidepoint(mouseX, mouseY):
+            self._save_level()
 
     def _handle_unclick_event(self, event):
         if event.button == 1: self.leftDown = False
@@ -166,6 +209,14 @@ class LevelBuilder:
                 if not occupiedByPlayer and not occupiedByOtherBed:
                     self.beds[index]["pos"] = [gridX, gridY]
 
+    def _handle_key_click_event(self, event):
+        if event.key == pygame.K_RETURN:
+            self.inputActive = False
+        elif event.key == pygame.K_BACKSPACE:
+            self.levelName = self.levelName[:-1]
+        else:
+            self.levelName += event.unicode
+
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.display.set_mode((self.screenWidth, self.screenHeight))
@@ -179,7 +230,10 @@ class LevelBuilder:
 
         elif event.type == pygame.MOUSEMOTION:
             self._handle_drag_event(event)
-            
+
+        elif event.type == pygame.KEYDOWN and self.inputActive:
+            self._handle_key_click_event(event)
+
         return None
 
     def update(self, dt):
@@ -222,6 +276,19 @@ class LevelBuilder:
         label = self.fontSmall.render(it["name"], True, (220,220,225))
         screen.blit(label, (it["rect"].x, it["rect"].bottom + 4))
         pygame.draw.rect(screen, (255, 215, 0), it["rect"], 3)
+
+        inputOutlineColor = pygame.Color("yellow") if self.inputActive else pygame.Color("white")
+        pygame.draw.rect(screen, inputOutlineColor, self.inputRect, 2)
+        nameSurface = self.fontSmall.render(self.levelName, True, pygame.Color("white"))
+        screen.blit(nameSurface, (self.inputRect.x + 4, self.inputRect.y + 5))
+
+        pygame.draw.rect(screen, pygame.Color("royalblue3"), self.saveButtonRect, border_radius=6)
+        save_text = self.fontSmall.render("Save Level", True, pygame.Color("white"))
+        screen.blit(
+            save_text,
+            (self.saveButtonRect.centerx - save_text.get_width() // 2,
+             self.saveButtonRect.centery - save_text.get_height() // 2)
+        )
 
     def draw(self, screen):
         self._draw_floor(screen)
