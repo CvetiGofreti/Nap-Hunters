@@ -1,6 +1,9 @@
 import pygame
 from screens.main_menu import MainMenu
 from screens.level_builder import LevelBuilder
+from screens.level_selector import LevelSelect
+from screens.gameplay import GameScreen
+from graphics_loader import Assets
 
 def main():
     pygame.init()
@@ -9,14 +12,11 @@ def main():
     screen = pygame.display.set_mode((screenWidth, screenHeight))
     pygame.display.set_caption("Nap Hunters")
     clock = pygame.time.Clock()
-
     fontMain = pygame.font.Font(None, 48)
     fontSmall = pygame.font.Font(None, 24)
-
-    currentScreen = MainMenu(fontMain, fontSmall)
-
-    backgroundImage = pygame.image.load("graphics/levels/wall.png").convert()
-    backgroundImage = pygame.transform.scale(backgroundImage, screen.get_size())
+    assets = Assets()
+    gameScreen = GameScreen(fontMain, fontSmall, assets)
+    currentScreen = MainMenu(fontMain, fontSmall, assets)
 
     running = True
     while running:
@@ -30,12 +30,18 @@ def main():
                 if action == "quit":
                     running = False
                 elif action == "levelBuilder":
-                    currentScreen = LevelBuilder(fontMain, fontSmall)
+                    currentScreen = LevelBuilder(fontMain, fontSmall, assets)
                 elif action == "mainMenu":
-                    currentScreen = MainMenu(fontMain, fontSmall)
+                    currentScreen = MainMenu(fontMain, fontSmall, assets)
+                elif action == "levelSelect":
+                    currentScreen = LevelSelect(fontMain, fontSmall, assets)
+                elif isinstance(action, tuple) and action[0] == "playLevel":
+                    levelPath = action[1]
+                    gameScreen.load_level(levelPath)
+                    currentScreen = gameScreen
 
         currentScreen.update(deltaTime)
-        screen.blit(backgroundImage, (0, 0))
+        screen.blit(assets.wall, (0, 0))
         currentScreen.draw(screen)
         pygame.display.flip()
 

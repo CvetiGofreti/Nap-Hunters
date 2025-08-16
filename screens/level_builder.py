@@ -1,13 +1,14 @@
 import pygame, os, json
 from tile_type import TileType
 from floor_type import FloorType
+from player_type import PlayerType
 from datetime import datetime
 
 tileSize = 64
 paletteWidth = 192
 
 class LevelBuilder:
-    def __init__(self, fontMain, fontSmall):
+    def __init__(self, fontMain, fontSmall, assets):
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
         pygame.display.set_mode((self.screenWidth + paletteWidth, self.screenHeight))
         self.fontMain = fontMain
@@ -15,38 +16,20 @@ class LevelBuilder:
         self.tileCountWidth = self.screenWidth // tileSize
         self.tileCountHeight = self.screenHeight // tileSize
         self.grid = [[TileType.EMPTY for _ in range(self.tileCountWidth)] for _ in range(self.tileCountHeight)]
+        self.assets = assets
 
         def loadInTileSize(path):
             img = pygame.image.load(path).convert_alpha()
             return pygame.transform.scale(img, (tileSize, tileSize))
 
-        self.floorVariants = {
-            FloorType.MID: loadInTileSize("graphics/levels/floor.png"),
-            FloorType.LEFT: loadInTileSize("graphics/levels/floor_left.png"),
-            FloorType.RIGHT: loadInTileSize("graphics/levels/floor_right.png"),
-            FloorType.FLOOR_SINGLE: loadInTileSize("graphics/levels/floor_both.png"),
-        }
-
-        self.playerImages = [
-            loadInTileSize("graphics/players/playerBlue.png"),
-            loadInTileSize("graphics/players/playerRed.png"),
-        ]
-
         self.players = [
-            {"name": "blue", "pos": [0, self.tileCountHeight - 1]},
-            {"name": "red",  "pos": [1, self.tileCountHeight - 1]},
+            {"name": "blue", "pos": [0, self.tileCountHeight - 1], "img": assets.playerImages[PlayerType.BLUE]},
+            {"name": "red",  "pos": [1, self.tileCountHeight - 1], "img": assets.playerImages[PlayerType.RED]},
         ]
 
-        def load_bed(path):
-            img = pygame.image.load(path).convert_alpha()
-            return pygame.transform.scale(img, (2*tileSize, tileSize))
-
-        bedBlue = load_bed("graphics/players/bedBlue.png")
-        bedRed = load_bed("graphics/players/bedRed.png")
-        
         self.beds = [
-            {"name": "bedBlue", "pos": [self.tileCountWidth - 2, 1], "size": (2, 1), "img": bedBlue},
-            {"name": "bedRed",  "pos": [self.tileCountWidth - 5, 1], "size": (2, 1), "img": bedRed},
+            {"name": "bedBlue", "pos": [self.tileCountWidth - 2, 1], "size": (2, 1), "img": assets.beds[PlayerType.BLUE]},
+            {"name": "bedRed",  "pos": [self.tileCountWidth - 5, 1], "size": (2, 1), "img": assets.beds[PlayerType.RED]},
         ]
 
         self.dragging = None
@@ -57,7 +40,7 @@ class LevelBuilder:
         self.paletteRect = pygame.Rect(self.screenWidth, 0, paletteWidth, self.screenHeight)
         x0, y0 = self.screenWidth + 16, 16
         self.items = [{"id": TileType.FLOOR, "name": "Floor", "rect": pygame.Rect(x0, y0, tileSize, tileSize)}]
-        self.item_icon = self.floorVariants[FloorType.MID]
+        self.item_icon = self.assets.floorVariants[FloorType.MID]
         self.selectedItemId = TileType.FLOOR
         self.hover_cell = None
 
@@ -256,12 +239,12 @@ class LevelBuilder:
             for x in range(self.tileCountWidth):
                 if self.grid[y][x] == TileType.FLOOR:
                     chosenVariant = self._pick_floor_variant(x, y)
-                    screen.blit(self.floorVariants[chosenVariant], (x*tileSize, y*tileSize))
+                    screen.blit(self.assets.floorVariants[chosenVariant], (x*tileSize, y*tileSize))
 
     def _draw_players(self, screen):
-        for i, p in enumerate(self.players):
-            px, py = p["pos"]
-            screen.blit(self.playerImages[i], (px*tileSize, py*tileSize))
+        for i, player in enumerate(self.players):
+            px, py = player["pos"]
+            screen.blit(player["img"], (px*tileSize, py*tileSize))
 
     def _draw_beds(self, screen):
         for bed in self.beds:
