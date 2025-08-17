@@ -3,6 +3,7 @@ import json
 import pygame
 from others.tile_type import TileType
 from others.floor_type import FloorType
+from others.controls_type import ControlsType
 from entities.player import Player
 
 tileSize = 64
@@ -44,11 +45,11 @@ class GameScreen:
                 tileType = self._get_tyle_type_at(x, y)
                 if tileType == TileType.BLUE_PLAYER:
                     image = self.assets.playerImages[tileType]
-                    controls = {"left": pygame.K_a, "right": pygame.K_d, "jump": pygame.K_w}
+                    controls = {ControlsType.LEFT: pygame.K_a, ControlsType.RIGHT: pygame.K_d, ControlsType.JUMP: pygame.K_w}
                     self.players.append(Player(image, (x, y) , controls))
                 if tileType == TileType.RED_PLAYER:
                     image = self.assets.playerImages[tileType]
-                    controls = {"left": pygame.K_a, "right": pygame.K_d, "jump": pygame.K_w}
+                    controls = {ControlsType.LEFT: pygame.K_LEFT, ControlsType.RIGHT: pygame.K_RIGHT, ControlsType.JUMP: pygame.K_UP}
                     self.players.append(Player(image, (x, y) , controls))
 
         self._validate_loaded_level()
