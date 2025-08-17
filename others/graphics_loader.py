@@ -1,8 +1,8 @@
 import pygame
-from tile_type import TileType
-from floor_type import FloorType
+from others.tile_type import TileType
+from others.floor_type import FloorType
 
-TILE = 64
+tileSize = 64
 
 class Assets:
     def __init__(self):
@@ -29,11 +29,11 @@ class Assets:
 
     def _load64(self, path):
         img = pygame.image.load(path).convert_alpha()
-        return pygame.transform.scale(img, (TILE, TILE))
+        return pygame.transform.scale(img, (tileSize, tileSize))
 
     def _load_2x1(self, path):
         img = pygame.image.load(path).convert_alpha()
-        return pygame.transform.scale(img, (2*TILE, TILE))
+        return pygame.transform.scale(img, (2*tileSize, tileSize))
 
     def _load_original(self, path):
         return pygame.image.load(path).convert()

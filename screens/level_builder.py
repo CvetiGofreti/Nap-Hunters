@@ -1,6 +1,6 @@
 import pygame, os, json
-from tile_type import TileType
-from floor_type import FloorType
+from others.tile_type import TileType
+from others.floor_type import FloorType
 from datetime import datetime
 
 tileSize = 64

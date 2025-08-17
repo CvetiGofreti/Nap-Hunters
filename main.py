@@ -3,7 +3,7 @@ from screens.main_menu import MainMenu
 from screens.level_builder import LevelBuilder
 from screens.level_selector import LevelSelect
 from screens.gameplay import GameScreen
-from graphics_loader import Assets
+from others.graphics_loader import Assets
 
 def main():
     pygame.init()
