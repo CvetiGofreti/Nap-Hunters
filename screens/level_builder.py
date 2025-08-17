@@ -1,7 +1,6 @@
 import pygame, os, json
 from tile_type import TileType
 from floor_type import FloorType
-from player_type import PlayerType
 from datetime import datetime
 
 tileSize = 64
@@ -18,19 +17,12 @@ class LevelBuilder:
         self.grid = [[TileType.EMPTY for _ in range(self.tileCountWidth)] for _ in range(self.tileCountHeight)]
         self.assets = assets
 
-        def loadInTileSize(path):
-            img = pygame.image.load(path).convert_alpha()
-            return pygame.transform.scale(img, (tileSize, tileSize))
-
-        self.players = [
-            {"name": "blue", "pos": [0, self.tileCountHeight - 1], "img": assets.playerImages[PlayerType.BLUE]},
-            {"name": "red",  "pos": [1, self.tileCountHeight - 1], "img": assets.playerImages[PlayerType.RED]},
-        ]
-
-        self.beds = [
-            {"name": "bedBlue", "pos": [self.tileCountWidth - 2, 1], "size": (2, 1), "img": assets.beds[PlayerType.BLUE]},
-            {"name": "bedRed",  "pos": [self.tileCountWidth - 5, 1], "size": (2, 1), "img": assets.beds[PlayerType.RED]},
-        ]
+        self.grid[self.tileCountHeight - 1][0] = TileType.BLUE_PLAYER
+        self.grid[self.tileCountHeight - 1][1] = TileType.RED_PLAYER
+        self.grid[1][self.tileCountWidth - 2] = TileType.BLUE_BED
+        self.grid[1][self.tileCountWidth - 1] = TileType.BLUE_BED
+        self.grid[1][self.tileCountWidth - 5] = TileType.RED_BED
+        self.grid[1][self.tileCountWidth - 4] = TileType.RED_BED
 
         self.dragging = None
         self.leftDown = False
@@ -66,45 +58,46 @@ class LevelBuilder:
         )
 
     def _pick_floor_variant(self, x, y):
-        left  = (x > 0 and self.grid[y][x-1] == TileType.FLOOR)
-        right = (x < self.tileCountWidth - 1 and self.grid[y][x+1] == TileType.FLOOR)
+        left  = (x > 0 and self._get_tyle_type_at(x - 1, y) == TileType.FLOOR)
+        right = (x < self.tileCountWidth - 1 and self._get_tyle_type_at(x + 1, y) == TileType.FLOOR)
         if left and right: return FloorType.MID
         if not left and right: return FloorType.LEFT
         if left and not right: return FloorType.RIGHT
         return FloorType.FLOOR_SINGLE
 
-    def _player_index_at(self, x, y):
-        for index, player in enumerate(self.players):
-            if player["pos"][0] == x and player["pos"][1] == y:
-                return index
-        return None
+    def _is_bed_tile(self, x, y):
+        if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
+            t = self._get_tyle_type_at(x, y)
+            if t in (TileType.BLUE_BED, TileType.RED_BED):
+                return True
+        return False
 
-    def _bed_index_at(self, x, y):
-        for index, bed in enumerate(self.beds):
-            bedX, bedY = bed["pos"]
-            bedWidth, bedHeight = bed["size"]
-            if (bedX <= x < bedX + bedWidth) and (bedY <= y < bedY + bedHeight):
-                return index
-        return None
+    def _is_player_tile(self, x, y):
+        if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
+            t = self._get_tyle_type_at(x, y)
+            if t in (TileType.BLUE_PLAYER, TileType.RED_PLAYER):
+                return True
+        return False
 
     def _entity_at(self, x, y):
-        bedIndex = self._bed_index_at(x, y)
-        if bedIndex is not None:
-            return ("bed", bedIndex)
-        playerIndex = self._player_index_at(x, y)
-        if playerIndex is not None:
-            return ("player", playerIndex)
+        if self._is_bed_tile(x, y):
+            return self._get_tyle_type_at(x, y)
+        if self._is_player_tile(x, y):
+            return self._get_tyle_type_at(x, y)
         return None
     
+    def _get_tyle_type_at(self, x, y):
+        if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
+            return self.grid[y][x]
+        return TileType.INVALID
+
     def _save_level(self):
         os.makedirs("levels", exist_ok=True)
         filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_level.json"
         path = os.path.join("levels", filename)
         data = {
             "name": self.levelName,
-            "grid": [[cell.value for cell in row] for row in self.grid],
-            "players": [{"name": player["name"], "pos": player["pos"]} for player in self.players],
-            "beds": [{"name": bed["name"], "pos": bed["pos"], "size": bed["size"]} for bed in self.beds]
+            "grid": [[cell.value for cell in row] for row in self.grid]
         }
         with open(path, "w") as file:
             json.dump(data, file, indent=2)
@@ -117,9 +110,9 @@ class LevelBuilder:
 
         if event.button == 2 and mouseX < self.screenWidth and mouseY < self.screenHeight:
             gridX, gridY = mouseX // tileSize, mouseY // tileSize
-            entity = self._entity_at(gridX, gridY)
-            if entity is not None:
-                self.dragging = entity
+            entityType = self._entity_at(gridX, gridY)
+            if entityType is not None:
+                self.dragging = (entityType , gridX, gridY)
 
         if self.paletteRect.collidepoint(mouseX, mouseY) and event.button == 1:
             for item in self.items:
@@ -165,32 +158,28 @@ class LevelBuilder:
 
         if self.dragging and mouseX < self.screenWidth and mouseY < self.screenHeight:
             gridX, gridY = mouseX // tileSize, mouseY // tileSize
-            kind, index = self.dragging
+            kind, oldX, oldY = self.dragging
 
-            if kind == "player":
+            if kind in (TileType.BLUE_PLAYER, TileType.RED_PLAYER):
                 gridX = max(0, min(self.tileCountWidth - 1, gridX))
                 gridY = max(0, min(self.tileCountHeight - 1, gridY))
-                other = 1 - index
-                if not (self.players[other]["pos"][0] == gridX and self.players[other]["pos"][1] == gridY) \
-                   and self._bed_index_at(gridX, gridY) is None:
-                    self.players[index]["pos"] = [gridX, gridY]
 
-            elif kind == "bed":
+                if not self._is_bed_tile(gridX, gridY) and self._get_tyle_type_at(gridX, gridY) == TileType.EMPTY:
+                    self.grid[oldY][oldX] = TileType.EMPTY
+                    self.grid[gridY][gridX] = kind
+                    self.dragging = (kind, gridX, gridY)
+
+            elif kind in (TileType.BLUE_BED, TileType.RED_BED):
                 gridX = max(0, min(self.tileCountWidth - 2, gridX))
                 gridY = max(0, min(self.tileCountHeight - 1, gridY))
-                occupiedByPlayer = (
-                    self._player_index_at(gridX, gridY) is not None or
-                    self._player_index_at(gridX + 1, gridY) is not None
-                )
-                occupiedByOtherBed = False
-                for j, bed in enumerate(self.beds):
-                    if j == index: continue
-                    bedX, bedY = bed["pos"]
-                    if (gridX <= bedX + 1 and gridX + 1 >= bedX) and (gridY == bedY):
-                        occupiedByOtherBed = True
-                        break
-                if not occupiedByPlayer and not occupiedByOtherBed:
-                    self.beds[index]["pos"] = [gridX, gridY]
+
+                if (self._get_tyle_type_at(gridX, gridY) == TileType.EMPTY and
+                    self._get_tyle_type_at(gridX + 1, gridY) == TileType.EMPTY):
+                    self.grid[oldY][oldX] = TileType.EMPTY
+                    self.grid[oldY][oldX + 1] = TileType.EMPTY
+                    self.grid[gridY][gridX] = kind
+                    self.grid[gridY][gridX + 1] = kind
+                    self.dragging = (kind, gridX, gridY)
 
     def _handle_key_click_event(self, event):
         if event.key == pygame.K_RETURN:
@@ -237,19 +226,25 @@ class LevelBuilder:
     def _draw_floor(self, screen):
         for y in range(self.tileCountHeight):
             for x in range(self.tileCountWidth):
-                if self.grid[y][x] == TileType.FLOOR:
+                if self._get_tyle_type_at(x, y) == TileType.FLOOR:
                     chosenVariant = self._pick_floor_variant(x, y)
                     screen.blit(self.assets.floorVariants[chosenVariant], (x*tileSize, y*tileSize))
 
     def _draw_players(self, screen):
-        for i, player in enumerate(self.players):
-            px, py = player["pos"]
-            screen.blit(player["img"], (px*tileSize, py*tileSize))
+        for y in range(self.tileCountHeight):
+            for x in range(self.tileCountWidth):
+                if self._get_tyle_type_at(x, y) == TileType.RED_PLAYER:
+                    screen.blit(self.assets.playerImages[TileType.RED_PLAYER], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.BLUE_PLAYER:
+                    screen.blit(self.assets.playerImages[TileType.BLUE_PLAYER], (x*tileSize, y*tileSize))
 
     def _draw_beds(self, screen):
-        for bed in self.beds:
-            bedX, bedY = bed["pos"]
-            screen.blit(bed["img"], (bedX*tileSize, bedY*tileSize))
+        for y in range(self.tileCountHeight):
+            for x in range(self.tileCountWidth):
+                if self._get_tyle_type_at(x, y) == TileType.RED_BED and self._get_tyle_type_at(x + 1, y) == TileType.RED_BED:
+                    screen.blit(self.assets.beds[TileType.RED_BED], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.BLUE_BED and self._get_tyle_type_at(x + 1, y) == TileType.BLUE_BED:
+                    screen.blit(self.assets.beds[TileType.BLUE_BED], (x*tileSize, y*tileSize))
 
     def _draw_palette(self, screen):
         #todo - make this easily expandable

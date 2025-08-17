@@ -1,7 +1,6 @@
 import pygame
 from tile_type import TileType
 from floor_type import FloorType
-from player_type import PlayerType
 
 TILE = 64
 
@@ -16,13 +15,13 @@ class Assets:
         }
 
         self.playerImages = {
-            PlayerType.BLUE: self._load64("graphics/players/playerBlue.png"),
-            PlayerType.RED:  self._load64("graphics/players/playerRed.png"),
+            TileType.BLUE_PLAYER: self._load64("graphics/players/playerBlue.png"),
+            TileType.RED_PLAYER:  self._load64("graphics/players/playerRed.png"),
         }
 
         self.beds = {
-            PlayerType.BLUE: self._load_2x1("graphics/players/bedBlue.png"),
-            PlayerType.RED:  self._load_2x1("graphics/players/bedRed.png"),
+            TileType.BLUE_BED: self._load_2x1("graphics/players/bedBlue.png"),
+            TileType.RED_BED:  self._load_2x1("graphics/players/bedRed.png"),
         }
 
         self.wall = self._load_original("graphics/levels/wall.png")
