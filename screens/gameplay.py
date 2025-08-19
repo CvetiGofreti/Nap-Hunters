@@ -46,11 +46,11 @@ class GameScreen:
                 if tileType == TileType.BLUE_PLAYER:
                     image = self.assets.playerImages[tileType]
                     controls = {ControlsType.LEFT: pygame.K_a, ControlsType.RIGHT: pygame.K_d, ControlsType.JUMP: pygame.K_w}
-                    self.players.append(Player(image, (x, y) , controls))
+                    self.players.append(Player(image, (x, y) , controls, TileType.BLUE_BED))
                 if tileType == TileType.RED_PLAYER:
                     image = self.assets.playerImages[tileType]
                     controls = {ControlsType.LEFT: pygame.K_LEFT, ControlsType.RIGHT: pygame.K_RIGHT, ControlsType.JUMP: pygame.K_UP}
-                    self.players.append(Player(image, (x, y) , controls))
+                    self.players.append(Player(image, (x, y) , controls, TileType.RED_BED))
 
         self._validate_loaded_level()
 

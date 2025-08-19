@@ -11,12 +11,13 @@ class Facing(IntEnum):
     RIGHT = 1
 
 class Player:
-    def __init__(self, img: pygame.Surface, grid_pos, controls):
+    def __init__(self, img: pygame.Surface, grid_pos, controls, bed):
         self.image = img
         self.rect = pygame.Rect(grid_pos[0] * tileSize, grid_pos[1] * tileSize, tileSize, tileSize)
         self.facing = Facing.LEFT
         self.controls = controls
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
+        self.correspondingBed = bed
 
         self.speed = 200
         self.movingLeft  = False
@@ -45,18 +46,19 @@ class Player:
 
     def draw(self, screen, grid):
         image = self.image
-        if self.facing == Facing.RIGHT:
+        if self.is_near_bed(grid):
+            image = pygame.transform.rotate(image, 270)
+        elif self.facing == Facing.RIGHT:
             image = pygame.transform.flip(self.image, True, False)
         screen.blit(image, self.rect.topleft)
  
         if os.getenv("DEBUG") == "1":
             for x, y in self.get_overlapping_tiles():
                 if 0 <= y < len(grid) and 0 <= x < len(grid[0]):
-                    tile = grid[y][x]
-                    tile_rect = pygame.Rect(x * tileSize, y * tileSize, tileSize, tileSize)
-                    pygame.draw.rect(screen, (255, 0, 0), tile_rect, 2)
-                    floor_top = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
-                    pygame.draw.rect(screen, (0, 255, 0), floor_top, 1)
+                    tileRect = pygame.Rect(x * tileSize, y * tileSize, tileSize, tileSize)
+                    pygame.draw.rect(screen, (255, 0, 0), tileRect, 2)
+                    floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
+                    pygame.draw.rect(screen, (0, 255, 0), floorTop, 1)
 
     def _check_bottom(self):
         if self.rect.bottom > self.screenHeight:
@@ -83,14 +85,14 @@ class Player:
             if tile != TileType.FLOOR:
                 continue
 
-            floor_top = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
-            if self.rect.colliderect(floor_top):
-                if self.velocity > 0 and self.prev_rect.bottom <= floor_top.top:
-                    self.rect.bottom = floor_top.top
+            floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
+            if self.rect.colliderect(floorTop):
+                if self.velocity > 0 and self.prevRect.bottom <= floorTop.top:
+                    self.rect.bottom = floorTop.top
                     self.velocity = 0
                     self.isJumping = False
-                elif self.velocity < 0 and self.prev_rect.top >= floor_top.bottom:
-                    self.rect.top = floor_top.bottom
+                elif self.velocity < 0 and self.prevRect.top >= floorTop.bottom:
+                    self.rect.top = floorTop.bottom
                     self.velocity = 0
 
     def update_move(self, dt, grid):
@@ -110,12 +112,12 @@ class Player:
             if tile != TileType.FLOOR:
                 continue
 
-            floor_top = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
-            if self.rect.colliderect(floor_top):
+            floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
+            if self.rect.colliderect(floorTop):
                 if self.facing == Facing.RIGHT:
-                    self.rect.right = floor_top.left
+                    self.rect.right = floorTop.left
                 elif self.facing == Facing.LEFT:
-                    self.rect.left = floor_top.right
+                    self.rect.left = floorTop.right
 
     def get_overlapping_tiles(self):
         tiles = []
@@ -130,9 +132,17 @@ class Player:
                 if 0 <= x < 15 and 0 <= y < 15:
                     tiles.append((x, y))
         return tiles
+    
+    def is_near_bed(self, grid):
+        for x, y in self.get_overlapping_tiles():
+            if 0 <= y < len(grid) and 0 <= x < len(grid[0]):
+                tile = grid[y][x]
+                if self.correspondingBed == tile:
+                    return True
+        return False
 
     def update(self, dt, grid):
-        self.prev_rect = self.rect.copy()
+        self.prevRect = self.rect.copy()
         self.update_move(dt, grid)
         self.update_jump(dt, grid)
         self._check_bottom()
