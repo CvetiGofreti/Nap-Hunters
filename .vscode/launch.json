@@ -5,7 +5,10 @@
             "name": "Run Main.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/main.py"
+            "program": "${workspaceFolder}/main.py",
+            "env": {
+                "DEBUG": "1"
+            }
         }
     ]
 }

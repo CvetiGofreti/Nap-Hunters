@@ -55,9 +55,9 @@ class GameScreen:
         self._validate_loaded_level()
 
     def _pick_floor_variant(self, grid, x, y):
-        w, h = len(grid[0]), len(grid)
+        gridWidth, gridHight = len(grid[0]), len(grid)
         left = (x > 0 and self._get_tyle_type_at(x - 1, y) == TileType.FLOOR)
-        right = (x < w-1 and self._get_tyle_type_at(x + 1, y) == TileType.FLOOR)
+        right = (x < gridWidth - 1 and self._get_tyle_type_at(x + 1, y) == TileType.FLOOR)
         if left and right: return FloorType.MID
         if not left and right: return FloorType.LEFT
         if left and not right: return FloorType.RIGHT
@@ -83,7 +83,7 @@ class GameScreen:
     def update(self, dt):
         if not self.hasError:
             for player in self.players:
-                player.update(dt)
+                player.update(dt, self.grid)
 
     def draw(self, screen):
         if self.hasError:
@@ -92,9 +92,6 @@ class GameScreen:
             screen.blit(text, rect)
             return
         
-        for player in self.players:
-            player.draw(screen)
-
         if self.grid:
             tileCountHeight = len(self.grid)
             tileCountWidth = len(self.grid[0])
@@ -109,3 +106,6 @@ class GameScreen:
                     if self._get_tyle_type_at(x, y) == TileType.BLUE_BED and self._get_tyle_type_at(x + 1, y) == TileType.BLUE_BED:
                         bedImage = self.assets.beds[TileType.BLUE_BED]
                         screen.blit(bedImage, (x * tileSize, y * tileSize))
+        
+        for player in self.players:
+            player.draw(screen, self.grid)
