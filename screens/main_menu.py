@@ -1,5 +1,7 @@
 import pygame
 
+from others.text_input import TextInputBox
+
 defaultButtonSize = (0, 0, 260, 70)
 
 class MainMenu:
@@ -13,7 +15,15 @@ class MainMenu:
         self.levelBuilderButton.center = (screenWidth // 2, screenHeight // 2 - 50)
         self.levelSelectButton.center = (screenWidth // 2, screenHeight // 2 + 50)
 
+        inputWidth = 260
+        inputHeight = 50
+        inputTeamNameX = screenWidth // 2 - inputWidth // 2
+        inputTeamNameY = 20
+        self.teamNameBox = TextInputBox(inputTeamNameX, inputTeamNameY, inputWidth, inputHeight, fontSmall, "Enter team name")
+
     def handle_event(self, event):
+        self.teamNameBox.handle_event(event)
+
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.levelBuilderButton.collidepoint(event.pos):
                 return "levelBuilder"
@@ -22,9 +32,11 @@ class MainMenu:
         return None
 
     def update(self, dt):
-        pass
+        self.teamNameBox.update(dt)
 
     def draw(self, screen):
+        self.teamNameBox.draw(screen)
+
         levelBuilderButtonColor = pygame.Color("royalblue3")
         pygame.draw.rect(screen, levelBuilderButtonColor, self.levelBuilderButton, border_radius=12)
         levelBuildlabel = self.fontMain.render("Build Level", True, pygame.Color("white"))

@@ -2,6 +2,7 @@ import pygame, os, json
 from others.tile_type import TileType
 from others.floor_type import FloorType
 from datetime import datetime
+from others.text_input import TextInputBox
 
 tileSize = 64
 paletteWidth = 192
@@ -46,16 +47,11 @@ class LevelBuilder:
             saveButtonHeight
         )
         
-        #todo - make this not so hard coded
-        self.levelName = "Untitled"
-        self.inputActive = False
+        inputWidth = paletteWidth - 32
         inputHeight = 32
-        self.inputRect = pygame.Rect(
-            self.screenWidth + 16,
-            self.saveButtonRect.y - inputHeight - 8,
-            paletteWidth - 32,
-            inputHeight
-        )
+        inputLevelNameX = self.screenWidth + 16
+        inputLevelNameY = self.saveButtonRect.y - inputHeight - 8
+        self.levelNameBox = TextInputBox(inputLevelNameX, inputLevelNameY, inputWidth, inputHeight, fontSmall, "Enter level name", pygame.Color("white"))
 
     def _pick_floor_variant(self, x, y):
         left  = (x > 0 and self._get_tyle_type_at(x - 1, y) == TileType.FLOOR)
@@ -96,7 +92,7 @@ class LevelBuilder:
         filename = datetime.now().strftime("%Y%m%d_%H%M%S") + "_level.json"
         path = os.path.join("levels", filename)
         data = {
-            "name": self.levelName,
+            "name": self.levelNameBox.label,
             "grid": [[cell.value for cell in row] for row in self.grid]
         }
         with open(path, "w") as file:
@@ -127,11 +123,6 @@ class LevelBuilder:
                     self.grid[gridY][gridX] = self.selectedItemId
                 elif event.button == 3:
                     self.grid[gridY][gridX] = TileType.EMPTY
-
-        if self.inputRect.collidepoint(mouseX, mouseY):
-            self.inputActive = True
-        else:
-            self.inputActive = False
 
         if self.saveButtonRect.collidepoint(mouseX, mouseY):
             self._save_level()
@@ -181,15 +172,9 @@ class LevelBuilder:
                     self.grid[gridY][gridX + 1] = kind
                     self.dragging = (kind, gridX, gridY)
 
-    def _handle_key_click_event(self, event):
-        if event.key == pygame.K_RETURN:
-            self.inputActive = False
-        elif event.key == pygame.K_BACKSPACE:
-            self.levelName = self.levelName[:-1]
-        else:
-            self.levelName += event.unicode
-
     def handle_event(self, event):
+        self.levelNameBox.handle_event(event)
+
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             pygame.display.set_mode((self.screenWidth, self.screenHeight))
             return "mainMenu"
@@ -203,13 +188,10 @@ class LevelBuilder:
         elif event.type == pygame.MOUSEMOTION:
             self._handle_drag_event(event)
 
-        elif event.type == pygame.KEYDOWN and self.inputActive:
-            self._handle_key_click_event(event)
-
         return None
 
     def update(self, dt):
-        pass
+        self.levelNameBox.update(dt)
 
     def _draw_grid(self, screen):
         gridColor = pygame.Color("dimgray")
@@ -255,10 +237,7 @@ class LevelBuilder:
         screen.blit(label, (it["rect"].x, it["rect"].bottom + 4))
         pygame.draw.rect(screen, (255, 215, 0), it["rect"], 3)
 
-        inputOutlineColor = pygame.Color("yellow") if self.inputActive else pygame.Color("white")
-        pygame.draw.rect(screen, inputOutlineColor, self.inputRect, 2)
-        nameSurface = self.fontSmall.render(self.levelName, True, pygame.Color("white"))
-        screen.blit(nameSurface, (self.inputRect.x + 4, self.inputRect.y + 5))
+        self.levelNameBox.draw(screen)
 
         pygame.draw.rect(screen, pygame.Color("royalblue3"), self.saveButtonRect, border_radius=6)
         save_text = self.fontSmall.render("Save Level", True, pygame.Color("white"))
