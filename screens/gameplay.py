@@ -1,6 +1,7 @@
 import os
 import json
 import pygame
+import others.global_values
 from others.tile_type import TileType
 from others.floor_type import FloorType
 from others.controls_type import ControlsType
@@ -23,7 +24,8 @@ class GameScreen:
         self.tileCountHeight = self.screenHeight // tileSize
         self.levelPath = ""
         self.levelComplete = False
-        
+        self.levelStartTime = 0
+
     def _get_tyle_type_at(self, x, y):
         if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
             return self.grid[y][x]
@@ -57,6 +59,7 @@ class GameScreen:
                     self.players.append(Player(image, (x, y) , controls, TileType.RED_BED))
 
         self._validate_loaded_level()
+        self.levelStartTime = pygame.time.get_ticks() / 1000
 
     def _pick_floor_variant(self, grid, x, y):
         gridWidth, gridHight = len(grid[0]), len(grid)
@@ -91,16 +94,21 @@ class GameScreen:
         return None
     
     def _on_level_complete(self):
-        for player in self.players:
-                player.on_level_complete()
-
         if self.levelComplete is False:
+            elapsedTime = pygame.time.get_ticks() / 1000 - self.levelStartTime
+            for player in self.players:
+                    player.on_level_complete()
+
+            totalPoints = 0
+            for player in self.players:
+                    totalPoints += player.points
+
             historyManager = LevelHistoryManager()
             historyManager.record_attempt(
-                "team Name",
+                others.global_values.currentTeamName,
                 self.levelName,
-                0,
-                0
+                elapsedTime,
+                totalPoints
             )
         self.levelComplete = True
 

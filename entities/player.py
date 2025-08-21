@@ -18,6 +18,7 @@ class Player:
         self.controls = controls
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
         self.correspondingBed = bed
+        self.points = 0
 
         self.speed = 200
         self.movingLeft  = False
@@ -58,7 +59,7 @@ class Player:
                         bedCenterX = bedX + tileSize
                         bedCenterY = bedY + tileSize // 2
                         bedCenter = (bedCenterX, bedCenterY)
-                        imageRect = image.get_rect(bedCenter)
+                        imageRect = image.get_rect(center = bedCenter)
                         drawPos = imageRect.topleft
                         break
                 else:

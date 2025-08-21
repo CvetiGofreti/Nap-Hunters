@@ -1,4 +1,5 @@
 import pygame
+import others.global_values
 
 from others.text_input import TextInputBox
 
@@ -33,6 +34,7 @@ class MainMenu:
 
     def update(self, dt):
         self.teamNameBox.update(dt)
+        others.global_values.currentTeamName = self.teamNameBox.label.strip()
 
     def draw(self, screen):
         self.teamNameBox.draw(screen)
