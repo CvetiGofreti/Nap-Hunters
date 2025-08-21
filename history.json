@@ -1,0 +1,50 @@
+{
+  "teams": {
+    "team Name": {
+      "completed_levels": {
+        "Untitled": [
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T17:33:51.315941"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T17:34:06.033103"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T17:58:31.882916"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T18:17:31.056422"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T18:21:30.867075"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T18:21:47.042748"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T18:43:34.359087"
+          },
+          {
+            "time": 0,
+            "points": 0,
+            "timestamp": "2025-08-21T22:37:32.927606"
+          }
+        ]
+      }
+    }
+  }
+}

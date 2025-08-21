@@ -5,6 +5,7 @@ from others.tile_type import TileType
 from others.floor_type import FloorType
 from others.controls_type import ControlsType
 from entities.player import Player
+from others.level_history_manager import LevelHistoryManager
 
 tileSize = 64
 
@@ -20,13 +21,16 @@ class GameScreen:
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
         self.tileCountWidth = self.screenWidth // tileSize
         self.tileCountHeight = self.screenHeight // tileSize
-
+        self.levelPath = ""
+        self.levelComplete = False
+        
     def _get_tyle_type_at(self, x, y):
         if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
             return self.grid[y][x]
         return TileType.INVALID
 
     def load_level(self, levelPath):
+        self.levelPath = levelPath
         try:
             with open(levelPath, "r", encoding="utf-8") as level:
                 data = json.load(level)
@@ -71,6 +75,12 @@ class GameScreen:
             self.hasError = True
 
     def handle_event(self, event):
+        if self.levelComplete:
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                self.levelComplete = False
+                return "levelSelect"
+            return None
+            
         if event.type == pygame.KEYDOWN and event.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE):
             return "levelSelect"
         
@@ -79,11 +89,45 @@ class GameScreen:
                 player.handle_event(event)
 
         return None
+    
+    def _on_level_complete(self):
+        for player in self.players:
+                player.on_level_complete()
+
+        if self.levelComplete is False:
+            historyManager = LevelHistoryManager()
+            historyManager.record_attempt(
+                "team Name",
+                self.levelName,
+                0,
+                0
+            )
+        self.levelComplete = True
 
     def update(self, dt):
         if not self.hasError:
             for player in self.players:
                 player.update(dt, self.grid)
+
+        if all(player.is_near_bed(self.grid) for player in self.players):
+            self._on_level_complete()
+
+    def draw_completion_popup(self, screen):
+        popupWidth = 400
+        popupHeight = 200
+        popupRect = pygame.Rect(
+            (self.screenWidth - popupWidth) // 2,
+            (self.screenHeight - popupHeight) // 2,
+            popupWidth,
+            popupHeight
+        )
+
+        pygame.draw.rect(screen, pygame.Color("black"), popupRect)
+        pygame.draw.rect(screen, pygame.Color("white"), popupRect, 4)
+        messageText = self.fontMain.render("Level Complete!", True, pygame.Color("white"))
+        screen.blit(messageText, (popupRect.centerx - messageText.get_width() // 2, popupRect.y + 30))
+        hintText = self.fontSmall.render("Press any key to continue...", True, pygame.Color("gray"))
+        screen.blit(hintText, (popupRect.centerx - hintText.get_width() // 2, popupRect.bottom - 50))
 
     def draw(self, screen):
         if self.hasError:
@@ -109,3 +153,6 @@ class GameScreen:
         
         for player in self.players:
             player.draw(screen, self.grid)
+
+        if self.levelComplete:
+            self.draw_completion_popup(screen)

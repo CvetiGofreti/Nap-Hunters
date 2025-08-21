@@ -46,11 +46,29 @@ class Player:
 
     def draw(self, screen, grid):
         image = self.image
+        drawPos = self.rect.topleft
+
         if self.is_near_bed(grid):
-            image = pygame.transform.rotate(image, 270)
+            image = pygame.transform.rotate(self.image, 270)
+            for y in range(len(grid)):
+                for x in range(len(grid[0]) - 1):
+                    if grid[y][x] == self.correspondingBed and grid[y][x + 1] == self.correspondingBed:
+                        bedX = x * tileSize
+                        bedY = y * tileSize
+                        bedCenterX = bedX + tileSize
+                        bedCenterY = bedY + tileSize // 2
+                        bedCenter = (bedCenterX, bedCenterY)
+                        imageRect = image.get_rect(bedCenter)
+                        drawPos = imageRect.topleft
+                        break
+                else:
+                    continue
+                break
+
         elif self.facing == Facing.RIGHT:
             image = pygame.transform.flip(self.image, True, False)
-        screen.blit(image, self.rect.topleft)
+        
+        screen.blit(image, drawPos)
  
         if os.getenv("DEBUG") == "1":
             for x, y in self.get_overlapping_tiles():
@@ -59,6 +77,11 @@ class Player:
                     pygame.draw.rect(screen, (255, 0, 0), tileRect, 2)
                     floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
                     pygame.draw.rect(screen, (0, 255, 0), floorTop, 1)
+
+    def on_level_complete(self):
+        self.movingLeft  = False
+        self.movingRight = False
+        self.jumpPressed = False
 
     def _check_bottom(self):
         if self.rect.bottom > self.screenHeight:
