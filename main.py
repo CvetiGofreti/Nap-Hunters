@@ -2,6 +2,7 @@ import pygame
 from screens.main_menu import MainMenu
 from screens.level_builder import LevelBuilder
 from screens.level_selector import LevelSelect
+from screens.leaderboard import Leaderboard
 from screens.gameplay import GameScreen
 from others.graphics_loader import Assets
 
@@ -35,6 +36,8 @@ def main():
                     currentScreen = MainMenu(fontMain, fontSmall, assets)
                 elif action == "levelSelect":
                     currentScreen = LevelSelect(fontMain, fontSmall, assets)
+                elif action == "leaderboard":
+                    currentScreen = Leaderboard(fontMain, fontSmall, assets)
                 elif isinstance(action, tuple) and action[0] == "playLevel":
                     levelPath = action[1]
                     gameScreen.load_level(levelPath)

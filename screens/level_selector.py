@@ -45,10 +45,10 @@ class LevelSelect:
 
     def draw(self, screen):
         screenWidth = screen.get_width()
-        title = self.fontMain.render("Select Level", True, pygame.Color("black"))
+        title = self.fontMain.render("Select Level", True, pygame.Color("royalblue3"))
         screen.blit(title, ((screenWidth - title.get_width()) // 2, levelListStartPos - title.get_height() - 10))
         for level in self.levels:
-            pygame.draw.rect(screen, pygame.Color("gray20"), level["rect"], border_radius=8)
+            pygame.draw.rect(screen, pygame.Color("royalblue3"), level["rect"], border_radius=8)
             label = self.fontSmall.render(level["name"], True, pygame.Color("white"))
             labelX = level["rect"].centerx - label.get_width() // 2
             labelY = level["rect"].centery - label.get_height() // 2

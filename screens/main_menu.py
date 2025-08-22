@@ -3,7 +3,10 @@ import others.global_values
 
 from others.text_input import TextInputBox
 
-defaultButtonSize = (0, 0, 260, 70)
+buttonHeight = 70
+buttonWidth = 260
+buttonSpacing = 20
+defaultButtonSize = (0, 0, buttonWidth, buttonHeight)
 
 class MainMenu:
     def __init__(self, fontMain, fontSmall, assets):
@@ -12,9 +15,15 @@ class MainMenu:
         screenWidth, screenHeight = pygame.display.get_surface().get_size()
         self.levelBuilderButton = pygame.Rect(*defaultButtonSize)
         self.levelSelectButton = pygame.Rect(*defaultButtonSize)
+        self.leaderboardButton = pygame.Rect(*defaultButtonSize)
 
-        self.levelBuilderButton.center = (screenWidth // 2, screenHeight // 2 - 50)
-        self.levelSelectButton.center = (screenWidth // 2, screenHeight // 2 + 50)
+        totalHeight = 3 * buttonHeight + 2 * buttonSpacing
+        startX = (screenWidth - buttonWidth) // 2
+        startY = (screenHeight - totalHeight) // 2
+
+        self.levelSelectButton.topleft = (startX, startY)
+        self.levelBuilderButton.topleft = (startX, startY + buttonHeight + buttonSpacing)
+        self.leaderboardButton.topleft = (startX, startY + 2 * (buttonHeight + buttonSpacing))
 
         inputWidth = 260
         inputHeight = 50
@@ -30,6 +39,8 @@ class MainMenu:
                 return "levelBuilder"
             if self.levelSelectButton.collidepoint(event.pos):
                 return "levelSelect"
+            if self.leaderboardButton.collidepoint(event.pos):
+                return "leaderboard"
         return None
 
     def update(self, dt):
@@ -39,14 +50,21 @@ class MainMenu:
     def draw(self, screen):
         self.teamNameBox.draw(screen)
 
-        levelBuilderButtonColor = pygame.Color("royalblue3")
-        pygame.draw.rect(screen, levelBuilderButtonColor, self.levelBuilderButton, border_radius=12)
-        levelBuildlabel = self.fontMain.render("Build Level", True, pygame.Color("white"))
-        screen.blit(levelBuildlabel, (self.levelBuilderButton.centerx - levelBuildlabel.get_width() // 2,
-                            self.levelBuilderButton.centery - levelBuildlabel.get_height() // 2))
+        buttonColor = pygame.Color("royalblue3")
+        borderRadius = 12
+        textColor = pygame.Color("white")
+
+        pygame.draw.rect(screen, buttonColor, self.levelBuilderButton, border_radius = borderRadius)
+        levelBuildLabel = self.fontMain.render("Build Level", True, textColor)
+        screen.blit(levelBuildLabel, (self.levelBuilderButton.centerx - levelBuildLabel.get_width() // 2,
+                            self.levelBuilderButton.centery - levelBuildLabel.get_height() // 2))
         
-        levelSelectButtonColor = pygame.Color("royalblue3")
-        pygame.draw.rect(screen, levelSelectButtonColor, self.levelSelectButton, border_radius=12)
-        levelSelectlabel = self.fontMain.render("Select Level", True, pygame.Color("white"))
-        screen.blit(levelSelectlabel, (self.levelSelectButton.centerx - levelSelectlabel.get_width() // 2,
-                            self.levelSelectButton.centery - levelSelectlabel.get_height() // 2))
+        pygame.draw.rect(screen, buttonColor, self.levelSelectButton, border_radius = borderRadius)
+        levelSelectLabel = self.fontMain.render("Play", True, textColor)
+        screen.blit(levelSelectLabel, (self.levelSelectButton.centerx - levelSelectLabel.get_width() // 2,
+                            self.levelSelectButton.centery - levelSelectLabel.get_height() // 2))
+        
+        pygame.draw.rect(screen, buttonColor, self.leaderboardButton, border_radius = borderRadius)
+        leaderboardLabel = self.fontMain.render("Leaderboard", True, textColor)
+        screen.blit(leaderboardLabel, (self.leaderboardButton.centerx - leaderboardLabel.get_width() // 2,
+                            self.leaderboardButton.centery - leaderboardLabel.get_height() // 2))
