@@ -26,6 +26,7 @@ class Assets:
 
         self.entities = {
             TileType.SNACK: self._load64("graphics/entities/snack.png"),
+            TileType.BOOKS: self._load64("graphics/entities/books.png")
         }
 
         self.wall = self._load_original("graphics/levels/wall.png")

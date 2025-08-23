@@ -31,9 +31,12 @@ class LevelBuilder:
         self.rightDown = False
 
         self.paletteRect = pygame.Rect(self.screenWidth, 0, paletteWidth, self.screenHeight)
+        #todo - positions not hard coded
         x0, y0 = self.screenWidth + 16, 16
         self.items = [{"type": TileType.FLOOR, "name": "Floor", "rect": pygame.Rect(x0, y0, tileSize, tileSize), "asset": assets.floorVariants[FloorType.MID]},
-                      {"type": TileType.SNACK, "name": "Snack", "rect": pygame.Rect(x0 + 64 + 16, y0, tileSize, tileSize), "asset": assets.entities[TileType.SNACK]}]
+                      {"type": TileType.SNACK, "name": "Snack", "rect": pygame.Rect(x0 + 64 + 16, y0, tileSize, tileSize), "asset": assets.entities[TileType.SNACK]},
+                      {"type": TileType.BOOKS, "name": "Books", "rect": pygame.Rect(x0, y0 + 64 + 32, tileSize, tileSize), "asset": assets.entities[TileType.BOOKS]}]
+        
         self.selectedItemType = TileType.FLOOR
         self.hoverCell = None
 
@@ -207,7 +210,7 @@ class LevelBuilder:
             pygame.draw.rect(screen, (255,255,255), pygame.Rect(gx*tileSize, gy*tileSize, tileSize, tileSize), 2)
 
                    
-    def _draw_floor(self, screen):
+    def _draw_items(self, screen):
         for y in range(self.tileCountHeight):
             for x in range(self.tileCountWidth):
                 if self._get_tyle_type_at(x, y) == TileType.FLOOR:
@@ -215,6 +218,8 @@ class LevelBuilder:
                     screen.blit(self.assets.floorVariants[chosenVariant], (x*tileSize, y*tileSize))
                 if self._get_tyle_type_at(x, y) == TileType.SNACK:
                     screen.blit(self.assets.entities[TileType.SNACK], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.BOOKS:
+                    screen.blit(self.assets.entities[TileType.BOOKS], (x*tileSize, y*tileSize))
 
     def _draw_players(self, screen):
         for y in range(self.tileCountHeight):
@@ -247,13 +252,16 @@ class LevelBuilder:
 
             if tileType == self.selectedItemType:
                 pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3)
+            else:
+                pygame.draw.rect(screen, pygame.Color("white"), rect, 3)
+
 
         self.levelNameBox.draw(screen)
 
         self.saveButton.draw(screen)
 
     def draw(self, screen):
-        self._draw_floor(screen)
+        self._draw_items(screen)
         self._draw_grid(screen)
         self._draw_players(screen)
         self._draw_beds(screen)
