@@ -3,6 +3,7 @@ from others.tile_type import TileType
 from others.floor_type import FloorType
 from datetime import datetime
 from others.text_input import TextInputBox
+from others.button import Button
 
 tileSize = 64
 paletteWidth = 192
@@ -36,20 +37,23 @@ class LevelBuilder:
         self.selectedItemType = TileType.FLOOR
         self.hoverCell = None
 
-        #todo - make this not so hard coded
         saveButtonHeight = 40
         saveButtonMargin = 16
-        self.saveButtonRect = pygame.Rect(
-            self.screenWidth + 16,
-            self.screenHeight - saveButtonHeight - saveButtonMargin,
-            paletteWidth - 32,
-            saveButtonHeight
+        buttonPos = (self.screenWidth + 16, self.screenHeight - saveButtonHeight - saveButtonMargin)  # bottom left corner of palette
+        buttonSize = (paletteWidth - 32, saveButtonHeight)
+
+        self.saveButton = Button(
+            pos = buttonPos,
+            size = buttonSize,
+            label = "Save Level",
+            onClick = self._save_level,
+            font = self.fontSmall
         )
-        
+
         inputWidth = paletteWidth - 32
         inputHeight = 32
         inputLevelNameX = self.screenWidth + 16
-        inputLevelNameY = self.saveButtonRect.y - inputHeight - 8
+        inputLevelNameY = self.saveButton.rect.y - inputHeight - 8
         self.levelNameBox = TextInputBox(inputLevelNameX, inputLevelNameY, inputWidth, inputHeight, fontSmall, "Enter level name", pygame.Color("white"))
 
     def _pick_floor_variant(self, x, y):
@@ -123,8 +127,7 @@ class LevelBuilder:
                 elif event.button == 3:
                     self.grid[gridY][gridX] = TileType.EMPTY
 
-        if self.saveButtonRect.collidepoint(mouseX, mouseY):
-            self._save_level()
+        self.saveButton.handle_event(event)
 
     def _handle_unclick_event(self, event):
         if event.button == 1: self.leftDown = False
@@ -247,15 +250,7 @@ class LevelBuilder:
 
         self.levelNameBox.draw(screen)
 
-        pygame.draw.rect(screen, pygame.Color("royalblue3"), self.saveButtonRect, border_radius=6)
-        save_text = self.fontSmall.render("Save Level", True, pygame.Color("white"))
-        screen.blit(
-            save_text,
-            (
-                self.saveButtonRect.centerx - save_text.get_width() // 2,
-                self.saveButtonRect.centery - save_text.get_height() // 2
-            )
-        )
+        self.saveButton.draw(screen)
 
     def draw(self, screen):
         self._draw_floor(screen)
