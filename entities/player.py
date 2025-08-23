@@ -26,7 +26,7 @@ class Player:
         self.jumpPressed = False
 
         self.isJumping = False
-        self.jumpVelocity = -550
+        self.jumpVelocity = -670
         self.gravity = 900
         self.velocity = 0
 

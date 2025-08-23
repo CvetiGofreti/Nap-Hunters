@@ -149,15 +149,21 @@ class GameScreen:
             tileCountWidth = len(self.grid[0])
             for y in range(tileCountHeight):
                 for x in range(tileCountWidth):
-                    if self._get_tyle_type_at(x, y) == TileType.FLOOR:
-                        floorVariant = self._pick_floor_variant(self.grid, x, y)
-                        screen.blit(self.assets.floorVariants[floorVariant], (x * tileSize, y * tileSize))
-                    if self._get_tyle_type_at(x, y) == TileType.RED_BED and self._get_tyle_type_at(x + 1, y) == TileType.RED_BED:
-                        bedImage = self.assets.beds[TileType.RED_BED]
-                        screen.blit(bedImage, (x * tileSize, y * tileSize))
-                    if self._get_tyle_type_at(x, y) == TileType.BLUE_BED and self._get_tyle_type_at(x + 1, y) == TileType.BLUE_BED:
-                        bedImage = self.assets.beds[TileType.BLUE_BED]
-                        screen.blit(bedImage, (x * tileSize, y * tileSize))
+                    tileType = self._get_tyle_type_at(x, y)
+                    match tileType:
+                        case TileType.FLOOR:
+                            floorVariant = self._pick_floor_variant(self.grid, x, y)
+                            screen.blit(self.assets.floorVariants[floorVariant], (x * tileSize, y * tileSize))
+                        case TileType.SNACK:
+                            screen.blit(self.assets.entities[tileType], (x * tileSize, y * tileSize))
+                        case TileType.RED_BED:
+                            if(self._get_tyle_type_at(x + 1, y) == tileType):
+                                bedImage = self.assets.beds[tileType]
+                                screen.blit(bedImage, (x * tileSize, y * tileSize))
+                        case TileType.BLUE_BED:
+                            if(self._get_tyle_type_at(x + 1, y) == tileType):
+                                bedImage = self.assets.beds[tileType]
+                                screen.blit(bedImage, (x * tileSize, y * tileSize))
         
         for player in self.players:
             player.draw(screen, self.grid)

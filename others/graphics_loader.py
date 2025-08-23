@@ -24,6 +24,10 @@ class Assets:
             TileType.RED_BED:  self._load_2x1("graphics/players/bedRed.png"),
         }
 
+        self.entities = {
+            TileType.SNACK: self._load64("graphics/entities/snack.png"),
+        }
+
         self.wall = self._load_original("graphics/levels/wall.png")
         self.wall = pygame.transform.scale(self.wall, pygame.display.get_surface().get_size())
 

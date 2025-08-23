@@ -29,13 +29,12 @@ class LevelBuilder:
         self.leftDown = False
         self.rightDown = False
 
-        #todo - make this easily expandable
         self.paletteRect = pygame.Rect(self.screenWidth, 0, paletteWidth, self.screenHeight)
         x0, y0 = self.screenWidth + 16, 16
-        self.items = [{"id": TileType.FLOOR, "name": "Floor", "rect": pygame.Rect(x0, y0, tileSize, tileSize)}]
-        self.item_icon = self.assets.floorVariants[FloorType.MID]
-        self.selectedItemId = TileType.FLOOR
-        self.hover_cell = None
+        self.items = [{"type": TileType.FLOOR, "name": "Floor", "rect": pygame.Rect(x0, y0, tileSize, tileSize), "asset": assets.floorVariants[FloorType.MID]},
+                      {"type": TileType.SNACK, "name": "Snack", "rect": pygame.Rect(x0 + 64 + 16, y0, tileSize, tileSize), "asset": assets.entities[TileType.SNACK]}]
+        self.selectedItemType = TileType.FLOOR
+        self.hoverCell = None
 
         #todo - make this not so hard coded
         saveButtonHeight = 40
@@ -113,14 +112,14 @@ class LevelBuilder:
         if self.paletteRect.collidepoint(mouseX, mouseY) and event.button == 1:
             for item in self.items:
                 if item["rect"].collidepoint(mouseX, mouseY):
-                    self.selectedItemId = item["id"]
+                    self.selectedItemType = item["type"]
                     return None
 
         if mouseX < self.screenWidth and mouseY < self.screenHeight:
             gridX, gridY = mouseX // tileSize, mouseY // tileSize
             if self._entity_at(gridX, gridY) is None:
                 if event.button == 1:
-                    self.grid[gridY][gridX] = self.selectedItemId
+                    self.grid[gridY][gridX] = self.selectedItemType
                 elif event.button == 3:
                     self.grid[gridY][gridX] = TileType.EMPTY
 
@@ -136,14 +135,14 @@ class LevelBuilder:
         mouseX, mouseY = event.pos
         if mouseX < self.screenWidth and mouseY < self.screenHeight:
             gridX, gridY = mouseX // tileSize, mouseY // tileSize
-            self.hover_cell = (gridX, gridY)
+            self.hoverCell = (gridX, gridY)
         else:
-            self.hover_cell = None
+            self.hoverCell = None
 
         if mouseX < self.screenWidth and mouseY < self.screenHeight:
             gridX, gridY = mouseX // tileSize, mouseY // tileSize
             if self.leftDown and self._entity_at(gridX, gridY) is None:
-                self.grid[gridY][gridX] = self.selectedItemId
+                self.grid[gridY][gridX] = self.selectedItemType
             elif self.rightDown and self._entity_at(gridX, gridY) is None:
                 self.grid[gridY][gridX] = TileType.EMPTY
 
@@ -200,8 +199,8 @@ class LevelBuilder:
         for y in range(self.tileCountHeight + 1):
             pygame.draw.line(screen, gridColor, (0, y*tileSize), (self.screenWidth, y*tileSize))
 
-        if self.hover_cell:
-            gx, gy = self.hover_cell
+        if self.hoverCell:
+            gx, gy = self.hoverCell
             pygame.draw.rect(screen, (255,255,255), pygame.Rect(gx*tileSize, gy*tileSize, tileSize, tileSize), 2)
 
                    
@@ -211,6 +210,8 @@ class LevelBuilder:
                 if self._get_tyle_type_at(x, y) == TileType.FLOOR:
                     chosenVariant = self._pick_floor_variant(x, y)
                     screen.blit(self.assets.floorVariants[chosenVariant], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.SNACK:
+                    screen.blit(self.assets.entities[TileType.SNACK], (x*tileSize, y*tileSize))
 
     def _draw_players(self, screen):
         for y in range(self.tileCountHeight):
@@ -229,13 +230,20 @@ class LevelBuilder:
                     screen.blit(self.assets.beds[TileType.BLUE_BED], (x*tileSize, y*tileSize))
 
     def _draw_palette(self, screen):
-        #todo - make this easily expandable
-        pygame.draw.rect(screen, (22, 22, 28), self.paletteRect)
-        it = self.items[0]
-        screen.blit(self.item_icon, it["rect"].topleft)
-        label = self.fontSmall.render(it["name"], True, (220,220,225))
-        screen.blit(label, (it["rect"].x, it["rect"].bottom + 4))
-        pygame.draw.rect(screen, (255, 215, 0), it["rect"], 3)
+        pygame.draw.rect(screen, pygame.Color("black"), self.paletteRect)
+        for item in self.items:
+            tileType = item["type"]
+            rect = item["rect"]
+            image = item["asset"]
+
+            if image:
+                screen.blit(image, rect.topleft)
+
+            label = self.fontSmall.render(item["name"], True, pygame.Color("white"))
+            screen.blit(label, (rect.x, rect.bottom + 4))
+
+            if tileType == self.selectedItemType:
+                pygame.draw.rect(screen, pygame.Color("yellow"), rect, 3)
 
         self.levelNameBox.draw(screen)
 
@@ -243,8 +251,10 @@ class LevelBuilder:
         save_text = self.fontSmall.render("Save Level", True, pygame.Color("white"))
         screen.blit(
             save_text,
-            (self.saveButtonRect.centerx - save_text.get_width() // 2,
-             self.saveButtonRect.centery - save_text.get_height() // 2)
+            (
+                self.saveButtonRect.centerx - save_text.get_width() // 2,
+                self.saveButtonRect.centery - save_text.get_height() // 2
+            )
         )
 
     def draw(self, screen):

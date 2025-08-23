@@ -8,3 +8,4 @@ class TileType(IntEnum):
     RED_BED = 4
     BLUE_BED = 5
     INVALID = 6
+    SNACK = 7
