@@ -6,6 +6,7 @@ from others.tile_type import TileType
 from others.floor_type import FloorType
 from others.controls_type import ControlsType
 from entities.player import Player
+from entities.snack import Snack
 from others.level_history_manager import LevelHistoryManager
 
 tileSize = 64
@@ -25,7 +26,7 @@ class GameScreen:
         self.levelPath = ""
         self.levelComplete = False
         self.levelStartTime = 0
-
+        self.snacks = []
     def _get_tyle_type_at(self, x, y):
         if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
             return self.grid[y][x]
@@ -57,6 +58,12 @@ class GameScreen:
                     image = self.assets.playerImages[tileType]
                     controls = {ControlsType.LEFT: pygame.K_LEFT, ControlsType.RIGHT: pygame.K_RIGHT, ControlsType.JUMP: pygame.K_UP}
                     self.players.append(Player(image, (x, y) , controls, TileType.RED_BED))
+
+        for y, row in enumerate(self.grid):
+            for x, tileType in enumerate(row):
+                if tileType == TileType.SNACK:
+                    snack = Snack(x, y, self.assets.entities[tileType])
+                    self.snacks.append(snack)
 
         self._validate_loaded_level()
         self.levelStartTime = pygame.time.get_ticks() / 1000
@@ -117,6 +124,11 @@ class GameScreen:
             for player in self.players:
                 player.update(dt, self.grid)
 
+                for snack in self.snacks[:]:
+                    if snack.is_colliding_with(player.rect):
+                        player.points += 1
+                        self.snacks.remove(snack)
+
         if all(player.is_near_bed(self.grid) for player in self.players):
             self._on_level_complete()
 
@@ -154,8 +166,6 @@ class GameScreen:
                         case TileType.FLOOR:
                             floorVariant = self._pick_floor_variant(self.grid, x, y)
                             screen.blit(self.assets.floorVariants[floorVariant], (x * tileSize, y * tileSize))
-                        case TileType.SNACK:
-                            screen.blit(self.assets.entities[tileType], (x * tileSize, y * tileSize))
                         case TileType.RED_BED:
                             if(self._get_tyle_type_at(x + 1, y) == tileType):
                                 bedImage = self.assets.beds[tileType]
@@ -164,7 +174,10 @@ class GameScreen:
                             if(self._get_tyle_type_at(x + 1, y) == tileType):
                                 bedImage = self.assets.beds[tileType]
                                 screen.blit(bedImage, (x * tileSize, y * tileSize))
-        
+
+        for snack in self.snacks:
+            snack.draw(screen)
+
         for player in self.players:
             player.draw(screen, self.grid)
 
