@@ -30,6 +30,7 @@ class Assets:
 
         self.wall = self._load_original("graphics/levels/wall.png")
         self.wall = pygame.transform.scale(self.wall, pygame.display.get_surface().get_size())
+        self.passedLevelImage = self._load64("graphics/levels/levelPassed.png")
 
     def _load64(self, path):
         img = pygame.image.load(path).convert_alpha()

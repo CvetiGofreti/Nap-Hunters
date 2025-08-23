@@ -48,7 +48,8 @@ class MainMenu:
         inputTeamNameX = screenWidth // 2 - inputWidth // 2
         inputTeamNameY = 20
         self.teamNameBox = TextInputBox(inputTeamNameX, inputTeamNameY, inputWidth, inputHeight, fontSmall, "Enter team name")
-
+        self.teamNameBox.label = others.global_values.currentTeamName
+        
     def _set_next(self, screenName):
         self.nextScreen = screenName
 

@@ -298,6 +298,11 @@
             "time": 4.516,
             "points": 0,
             "timestamp": "2025-08-21T23:50:01.921397"
+          },
+          {
+            "time": 3.9870000000000005,
+            "points": 0,
+            "timestamp": "2025-08-23T17:54:45.328321"
           }
         ],
         "Simple Level": [
@@ -328,6 +333,28 @@
             "time": 3.6099999999999994,
             "points": 0,
             "timestamp": "2025-08-21T23:50:19.550149"
+          }
+        ]
+      }
+    },
+    "test": {
+      "completed_levels": {
+        "snacks": [
+          {
+            "time": 10.274000000000001,
+            "points": 4,
+            "timestamp": "2025-08-23T17:46:09.416306"
+          }
+        ]
+      }
+    },
+    "tewfdzfsd": {
+      "completed_levels": {
+        "Untitled": [
+          {
+            "time": 3.7569999999999997,
+            "points": 0,
+            "timestamp": "2025-08-23T17:47:37.921860"
           }
         ]
       }
