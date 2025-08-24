@@ -39,6 +39,7 @@ class Assets:
             SprayType.ON_TOP:    self._load64("graphics/spray/spray_on_top.png")
         }
 
+        self.buttonPressed = self._load64("graphics/spray/button_pressed.png")
         self.wall = self._load_original("graphics/levels/wall.png")
         self.wall = pygame.transform.scale(self.wall, pygame.display.get_surface().get_size())
         self.passedLevelImage = self._load64("graphics/levels/levelPassed.png")

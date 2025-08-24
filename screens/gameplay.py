@@ -9,6 +9,8 @@ from entities.player import Player
 from entities.snack import Snack
 from others.level_history_manager import LevelHistoryManager
 from entities.books import MovableBooks
+from entities.button import Button
+from entities.spray import Spray
 
 tileSize = 64
 
@@ -29,6 +31,8 @@ class GameScreen:
         self.levelStartTime = 0
         self.snacks = []
         self.movableBooks = []
+        self.buttons = []
+        self.sprays = []
 
     def _get_tyle_type_at(self, x, y):
         if 0 <= y < self.tileCountHeight and 0 <= x < self.tileCountWidth:
@@ -68,6 +72,17 @@ class GameScreen:
                 if tileType == TileType.BOOKS:
                     book = MovableBooks(x, y, self.assets.entities[tileType])
                     self.movableBooks.append(book)
+                if tileType == TileType.BUTTON:
+                    self.buttons.append(Button(x, y, self.assets))
+                if tileType == TileType.SPRAY:
+                    height = 1
+                    while y - height >= 0:
+                        aboveTile = self._get_tyle_type_at(x, y - height)
+                        if aboveTile == TileType.EMPTY or aboveTile == TileType.SNACK:
+                            height += 1
+                        else:
+                            break
+                    self.sprays.append(Spray(x, y, height, self.assets))
 
         self._validate_loaded_level()
         self.levelStartTime = pygame.time.get_ticks() / 1000
@@ -124,21 +139,26 @@ class GameScreen:
         self.levelComplete = True
 
     def update(self, dt):
-        if not self.hasError:
-            bookRects = [book.rect for book in self.movableBooks]
-            for book in self.movableBooks:
-                book.update(dt, self.grid, self.players)
+        if self.hasError:
+            return
+        
+        bookRects = [book.rect for book in self.movableBooks]
 
-            for player in self.players:
-                player.update(dt, self.grid, bookRects)
+        for book in self.movableBooks:
+            book.update(dt, self.grid, self.players)
 
-                for snack in self.snacks[:]:
-                    if snack.is_colliding_with(player.rect):
-                        player.points += 1
-                        self.snacks.remove(snack)
+        anyButtonPressed = any(button.is_pressed(self.players) for button in self.buttons)
+        for spray in self.sprays:
+            spray.update(anyButtonPressed)
 
-            if all(player.is_near_bed(self.grid) for player in self.players):
-                self._on_level_complete()
+        for player in self.players:
+            player.update(dt, self.grid, bookRects)
+            for snack in self.snacks[:]:
+                if snack.is_colliding_with(player.rect):
+                    player.points += 1
+                    self.snacks.remove(snack)
+        if all(player.is_near_bed(self.grid) for player in self.players):
+            self._on_level_complete()
 
     def draw_completion_popup(self, screen):
         popupWidth = 400
@@ -183,8 +203,6 @@ class GameScreen:
                                 bedImage = self.assets.beds[tileType]
                                 screen.blit(bedImage, (x * tileSize, y * tileSize))
 
-        for snack in self.snacks:
-            snack.draw(screen)
 
         for player in self.players:
             player.draw(screen, self.grid)
@@ -194,3 +212,12 @@ class GameScreen:
 
         for book in self.movableBooks:
             book.draw(screen)
+
+        for button in self.buttons:
+            button.draw(screen, self.players)
+
+        for spray in self.sprays:
+            spray.draw(screen)
+
+        for snack in self.snacks:
+            snack.draw(screen)
