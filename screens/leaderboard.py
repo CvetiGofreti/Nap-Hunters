@@ -10,14 +10,14 @@ LABEL_HEIGHT = 30
 
 
 class Leaderboard(BaseScreen):
-    def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, assets) -> None:
-        self.font_main = font_main
-        self.font_small = font_small
-        self.scroll_offset = 0
-        self.sort_key = "timestamp"
-        self.sort_ascending = False
-        self.headers = ["team", "level", "time", "points", "timestamp"]
-        self.entries = self._load_entries()
+    def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, _assets) -> None:
+        self.font_main: pygame.font.Font = font_main
+        self.font_small: pygame.font.Font = font_small
+        self.scroll_offset: int = 0
+        self.sort_key: str = "timestamp"
+        self.sort_ascending: bool = False
+        self.headers: list[str] = ["team", "level", "time", "points", "timestamp"]
+        self.entries: list[dict] = self._load_entries()
         self._sort()
 
     def _load_entries(self) -> list[dict]:
@@ -41,7 +41,10 @@ class Leaderboard(BaseScreen):
         ]
 
     def _sort(self) -> None:
-        self.entries.sort(key = lambda entry: entry[self.sort_key], reverse = not self.sort_ascending)
+        self.entries.sort(
+            key = lambda entry: entry[self.sort_key],
+            reverse = not self.sort_ascending
+        )
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         max_visible = (pygame.display.get_surface().get_height() - 60) // LABEL_HEIGHT
