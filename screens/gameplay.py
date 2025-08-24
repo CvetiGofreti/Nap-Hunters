@@ -12,7 +12,13 @@ POPUP_HEIGHT: int = 200
 
 
 class GameScreen(BaseScreen):
-    def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, assets: Assets) -> None:
+    def __init__(
+            self,
+            font_main: pygame.font.Font,
+            font_small: pygame.font.Font,
+            assets: Assets
+        ) -> None:
+
         self.font_main: pygame.font.Font = font_main
         self.font_small: pygame.font.Font = font_small
         self.assets = assets
@@ -114,7 +120,8 @@ class GameScreen(BaseScreen):
                         height: int = 1
                         while (
                             y - height >= 0
-                            and self._get_tyle_type_at(x, y - height) in (TileType.EMPTY, TileType.SNACK)
+                            and self._get_tyle_type_at(x, y - height)
+                            in (TileType.EMPTY, TileType.SNACK)
                         ):
                             height += 1
                         self.sprays.append(Spray(x, y, height, self.assets))
@@ -239,7 +246,7 @@ class GameScreen(BaseScreen):
 
         for snack in self.snacks:
             snack.draw(screen)
-        
+
         for button in self.buttons:
             button.draw(screen, self.players)
 
