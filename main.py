@@ -1,6 +1,8 @@
-"""Main entry point the game."""
+"""Main entry point for the game."""
 
 import pygame
+from pygame.surface import Surface
+from pygame.font import Font
 
 from screens import MainMenu
 from screens import LevelBuilder
@@ -9,31 +11,32 @@ from screens import Leaderboard
 from screens import GameScreen
 from others import Assets
 
-def main():
+
+def main() -> None:
     """Initializes and runs the game loop."""
     pygame.init()
-    screen_width = 960
-    screen_height = 960
-    screen = pygame.display.set_mode((screen_width, screen_height))
+    screen_width: int = 960
+    screen_height: int = 960
+    screen: Surface = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Nap Hunters")
     clock = pygame.time.Clock()
-    font_main = pygame.font.Font(None, 48)
-    font_small = pygame.font.Font(None, 24)
-    assets = Assets()
+    font_main: Font = pygame.font.Font(None, 48)
+    font_small: Font = pygame.font.Font(None, 24)
+    assets: Assets = Assets()
 
-    actions = {
+    actions: dict[str, callable] = {
         "mainMenu": lambda: MainMenu(font_main, font_small, assets),
         "levelBuilder": lambda: LevelBuilder(font_main, font_small, assets),
         "levelSelect": lambda: LevelSelect(font_main, font_small, assets),
         "leaderboard": lambda: Leaderboard(font_main, font_small, assets),
     }
 
-    game_screen = GameScreen(font_main, font_small, assets)
+    game_screen: GameScreen = GameScreen(font_main, font_small, assets)
     current_screen = actions["mainMenu"]()
 
-    running = True
+    running: bool = True
     while running:
-        delta_time = clock.tick(60) / 1000.0
+        delta_time: float = clock.tick(60) / 1000.0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -56,6 +59,7 @@ def main():
         pygame.display.flip()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
