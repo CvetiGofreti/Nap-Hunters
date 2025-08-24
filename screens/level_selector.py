@@ -1,10 +1,10 @@
 import os
 import json
+from typing import Callable, cast
 
 import pygame
 
-import others
-from others import Button, Assets
+from others import Button, Assets, global_values
 from screens.interface import BaseScreen
 
 LEVEL_BUTTON_HEIGHT = 56
@@ -58,7 +58,7 @@ class LevelSelect(BaseScreen):
                 pos = (rect.x, rect.y),
                 size = (rect.width, rect.height),
                 label = name,
-                on_click = lambda path = full_path: self._set_next(path),
+                on_click = cast(Callable[[], None], lambda path = full_path: self._set_next(path)),
                 font = self.font_small,
                 show_check = was_passed,
                 check_image = self.assets.passed_level_image
@@ -67,7 +67,7 @@ class LevelSelect(BaseScreen):
             y += LEVEL_BUTTON_HEIGHT + LEVEL_BUTTON_VERTICAL_PADDING
 
     def _load_passed_levels(self) -> set[str]:
-        team_name = others.global_values.current_team_name
+        team_name = global_values.current_team_name
         try:
             with open("history.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
