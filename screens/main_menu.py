@@ -3,6 +3,7 @@ import pygame
 import others
 from others import Button
 from others import TextInputBox
+from screens.interface import BaseScreen
 
 BUTTON_HEIGHT = 70
 BUTTON_WIDTH = 260
@@ -11,7 +12,7 @@ INPUT_WIDTH = 260
 INPUT_HEIGHT = 50
 
 
-class MainMenu:
+class MainMenu(BaseScreen):
     """Main menu screen of the game.
 
     Displays buttons for navigating to other parts of the game such as

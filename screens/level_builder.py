@@ -8,11 +8,12 @@ from others import FloorType
 from others import TextInputBox
 from others import Button
 from others import SprayType
+from screens.interface import BaseScreen
 
 tileSize = 64
 paletteWidth = 192
 
-class LevelBuilder:
+class LevelBuilder(BaseScreen):
     def __init__(self, fontMain, fontSmall, assets):
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
         pygame.display.set_mode((self.screenWidth + paletteWidth, self.screenHeight))

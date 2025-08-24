@@ -2,28 +2,30 @@ import json
 import pygame
 
 import others
-from others import TileType, FloorType, ControlsType, LevelHistoryManager
+from others import TileType, FloorType, ControlsType, LevelHistoryManager, Assets
 from entities import Player, Snack, MovableBooks, Button, Spray
+from screens.interface import BaseScreen
 
-TILE_SIZE = 64
-POPUP_WIDTH = 400
-POPUP_HEIGHT = 200
+TILE_SIZE: int = 64
+POPUP_WIDTH: int = 400
+POPUP_HEIGHT: int = 200
 
-class GameScreen:
-    def __init__(self, font_main, font_small, assets):
-        self.font_main = font_main
-        self.font_small = font_small
+
+class GameScreen(BaseScreen):
+    def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, assets: Assets) -> None:
+        self.font_main: pygame.font.Font = font_main
+        self.font_small: pygame.font.Font = font_small
         self.assets = assets
-        self.grid = []
-        self.level_name = "Level"
-        self.players = []
-        self.has_error = False
+        self.grid: list[list[TileType]] = []
+        self.level_name: str = "Level"
+        self.players: list[Player] = []
+        self.has_error: bool = False
         self.screen_width, self.screen_height = pygame.display.get_surface().get_size()
-        self.tile_count_width = self.screen_width // TILE_SIZE
-        self.tile_count_height = self.screen_height // TILE_SIZE
-        self.level_path = ""
-        self.level_complete = False
-        self.level_start_time = 0
+        self.tile_count_width: int = self.screen_width // TILE_SIZE
+        self.tile_count_height: int = self.screen_height // TILE_SIZE
+        self.level_path: str = ""
+        self.level_complete: bool = False
+        self.level_start_time: float = 0.0
         self.snacks: list[Snack] = []
         self.movable_books: list[MovableBooks] = []
         self.buttons: list[Button] = []
@@ -55,15 +57,14 @@ class GameScreen:
 
         for y in range(self.tile_count_height):
             for x in range(self.tile_count_width):
-                tile_type = self._get_tyle_type_at(x, y)
+                tile_type: TileType = self._get_tyle_type_at(x, y)
                 match tile_type:
                     case TileType.BLUE_PLAYER:
-                        controls = {
+                        controls: dict[ControlsType, int] = {
                             ControlsType.LEFT: pygame.K_a,
                             ControlsType.RIGHT: pygame.K_d,
                             ControlsType.JUMP: pygame.K_w,
                         }
-
                         self.players.append(
                             Player(
                                 self.assets.playerImages[tile_type],
@@ -81,12 +82,13 @@ class GameScreen:
                         }
                         self.players.append(
                             Player(
-                               self.assets.playerImages[tile_type],
+                                self.assets.playerImages[tile_type],
                                 (x, y),
                                 controls,
                                 TileType.RED_BED
                             )
                         )
+
                     case TileType.SNACK:
                         self.snacks.append(
                             Snack(
@@ -95,6 +97,7 @@ class GameScreen:
                                 self.assets.entities[tile_type]
                             )
                         )
+
                     case TileType.BOOKS:
                         self.movable_books.append(
                             MovableBooks(
@@ -103,14 +106,15 @@ class GameScreen:
                                 self.assets.entities[tile_type]
                             )
                         )
+
                     case TileType.BUTTON:
                         self.buttons.append(Button(x, y, self.assets))
+
                     case TileType.SPRAY:
-                        height = 1
+                        height: int = 1
                         while (
                             y - height >= 0
-                            and self._get_tyle_type_at(x, y - height)
-                            in (TileType.EMPTY, TileType.SNACK)
+                            and self._get_tyle_type_at(x, y - height) in (TileType.EMPTY, TileType.SNACK)
                         ):
                             height += 1
                         self.sprays.append(Spray(x, y, height, self.assets))
@@ -119,9 +123,9 @@ class GameScreen:
         self.level_start_time = pygame.time.get_ticks() / 1000
 
     def _pick_floor_variant(self, grid: list[list[TileType]], x: int, y: int) -> FloorType:
-        grid_width = len(grid[0])
-        left = x > 0 and self._get_tyle_type_at(x - 1, y) == TileType.FLOOR
-        right = x < grid_width - 1 and self._get_tyle_type_at(x + 1, y) == TileType.FLOOR
+        grid_width: int = len(grid[0])
+        left: bool = x > 0 and self._get_tyle_type_at(x - 1, y) == TileType.FLOOR
+        right: bool = x < grid_width - 1 and self._get_tyle_type_at(x + 1, y) == TileType.FLOOR
         if left and right:
             return FloorType.MID
         if not left and right:
@@ -134,7 +138,7 @@ class GameScreen:
         if self.tile_count_width != len(self.grid[0]) or self.tile_count_height != len(self.grid):
             self.has_error = True
 
-    def handle_event(self, event: pygame.event.Event) -> str | None:
+    def handle_event(self, event: pygame.event.Event) -> str | tuple | None:
         if self.level_complete:
             if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
                 self.level_complete = False
@@ -152,8 +156,8 @@ class GameScreen:
 
     def _on_level_complete(self) -> None:
         if not self.level_complete:
-            elapsed = pygame.time.get_ticks() / 1000 - self.level_start_time
-            total_points = sum(player.points for player in self.players)
+            elapsed: float = pygame.time.get_ticks() / 1000 - self.level_start_time
+            total_points: int = sum(player.points for player in self.players)
 
             history_manager = LevelHistoryManager()
             history_manager.record_attempt(
@@ -162,6 +166,7 @@ class GameScreen:
                 elapsed,
                 total_points
             )
+
             for player in self.players:
                 player.on_level_complete()
 
@@ -176,7 +181,7 @@ class GameScreen:
         for book in self.movable_books:
             book.update(dt, self.grid, self.players)
 
-        any_pressed = any(button.is_pressed(self.players) for button in self.buttons)
+        any_pressed: bool = any(button.is_pressed(self.players) for button in self.buttons)
         for spray in self.sprays:
             spray.update(any_pressed, self.players)
 
@@ -226,10 +231,15 @@ class GameScreen:
         for player in self.players:
             player.draw(screen, self.grid)
 
-        for entity_list in [self.sprays, self.movable_books, self.snacks]:
-            for entity in entity_list:
-                entity.draw(screen)
+        for spray in self.sprays:
+            spray.draw(screen)
 
+        for book in self.movable_books:
+            book.draw(screen)
+
+        for snack in self.snacks:
+            snack.draw(screen)
+        
         for button in self.buttons:
             button.draw(screen, self.players)
 

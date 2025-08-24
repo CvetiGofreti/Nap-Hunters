@@ -1,12 +1,13 @@
 """Main entry point for the game."""
 
+from typing import Callable
+
 import pygame
 from pygame.surface import Surface
 from pygame.font import Font
 
-from screens import MainMenu, LevelBuilder, LevelSelect, Leaderboard, GameScreen
+from screens import MainMenu, LevelBuilder, LevelSelect, Leaderboard, GameScreen, BaseScreen
 from others import Assets
-
 
 def main() -> None:
     """Initializes and runs the game loop."""
@@ -20,7 +21,7 @@ def main() -> None:
     font_small: Font = pygame.font.Font(None, 24)
     assets: Assets = Assets()
 
-    actions: dict[str, callable] = {
+    actions: dict[str | tuple | None , Callable[[], BaseScreen]] = {
         "mainMenu": lambda: MainMenu(font_main, font_small, assets),
         "levelBuilder": lambda: LevelBuilder(font_main, font_small, assets),
         "levelSelect": lambda: LevelSelect(font_main, font_small, assets),
@@ -28,7 +29,7 @@ def main() -> None:
     }
 
     game_screen: GameScreen = GameScreen(font_main, font_small, assets)
-    current_screen = actions["mainMenu"]()
+    current_screen: BaseScreen = actions["mainMenu"]()
 
     running: bool = True
     while running:

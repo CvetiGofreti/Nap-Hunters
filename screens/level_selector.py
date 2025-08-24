@@ -2,15 +2,16 @@ import pygame
 import os
 import json
 
-from others import Button
 import others
+from others import Button
+from screens.interface import BaseScreen
 
 levelbuttonHeight = 56
 levelbuttonPadding = 20
 levelbuttonVerticalPadding = 10
 levelListStartPos = 100
 
-class LevelSelect:
+class LevelSelect(BaseScreen):
     def __init__(self, fontMain, fontSmall, assets):
         self.fontMain = fontMain
         self.fontSmall = fontSmall

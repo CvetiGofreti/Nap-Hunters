@@ -1,13 +1,15 @@
 import json
 import pygame
 
+from screens.interface import BaseScreen
+
 COLUMN_WIDTH = 160
 START_X = 20
 START_Y = 60
 LABEL_HEIGHT = 30
 
 
-class Leaderboard:
+class Leaderboard(BaseScreen):
     def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, assets) -> None:
         self.font_main = font_main
         self.font_small = font_small
