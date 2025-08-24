@@ -149,7 +149,7 @@ class GameScreen:
 
         anyButtonPressed = any(button.is_pressed(self.players) for button in self.buttons)
         for spray in self.sprays:
-            spray.update(anyButtonPressed)
+            spray.update(anyButtonPressed, self.players)
 
         for player in self.players:
             player.update(dt, self.grid, bookRects)

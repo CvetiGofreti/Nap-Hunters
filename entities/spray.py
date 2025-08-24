@@ -1,4 +1,5 @@
 import pygame
+import os
 from others.tile_type import TileType
 from others.spray_type import SprayType
 
@@ -11,11 +12,19 @@ class Spray:
         self.height = height
         self.assets = assets
         self.active = True
+        self.collideRect = pygame.Rect(x * tileSize, (y - height + 1) * tileSize, tileSize, height * tileSize)
 
-    def update(self, anyButtonPressed):
+    def update(self, anyButtonPressed, players):
         self.active = not anyButtonPressed
 
+        for player in players:
+            if self.active and self.collideRect.colliderect(player.rect):
+                player.reapawn()
+
     def draw(self, screen):
+        if os.getenv("DEBUG") == "1":
+            pygame.draw.rect(screen, pygame.Color("red"), self.collideRect, 2)
+
         if not self.active:
             screen.blit(self.assets.sprays[SprayType.OFF], (self.baseX * tileSize, self.baseY * tileSize))
         elif self.height == 1:

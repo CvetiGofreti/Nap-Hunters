@@ -14,6 +14,7 @@ class Player:
     def __init__(self, img: pygame.Surface, grid_pos, controls, bed):
         self.image = img
         self.rect = pygame.Rect(grid_pos[0] * tileSize, grid_pos[1] * tileSize, tileSize, tileSize)
+        self.initialPos = (grid_pos[0] * tileSize, grid_pos[1] * tileSize)
         self.facing = Facing.LEFT
         self.controls = controls
         self.screenWidth, self.screenHeight = pygame.display.get_surface().get_size()
@@ -78,6 +79,13 @@ class Player:
                     pygame.draw.rect(screen, (255, 0, 0), tileRect, 2)
                     floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
                     pygame.draw.rect(screen, (0, 255, 0), floorTop, 1)
+
+    def respawn(self):
+        self.rect.topleft = self.initialPos
+        self.velocity = 0
+        self.isJumping = False
+        self.movingLeft  = False
+        self.movingRight = False
 
     def on_level_complete(self):
         self.movingLeft  = False
