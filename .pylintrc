@@ -1,0 +1,6 @@
+[TYPECHECK]
+ignored-modules=pygame
+ignored-classes=pygame.*,pygame.surface.*
+
+[MESSAGES CONTROL]
+disable=C0114

@@ -20,7 +20,7 @@ class MainMenu(BaseScreen):
     input box for entering the team name.
     """
 
-    def __init__(self, font_main, font_small, assets):
+    def __init__(self, font_main, font_small, _assets):
         self.font_main = font_main
         self.font_small = font_small
         screen_width, screen_height = pygame.display.get_surface().get_size()
