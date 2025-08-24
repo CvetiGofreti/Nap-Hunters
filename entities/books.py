@@ -1,7 +1,7 @@
 import pygame
 import os
 from others.tile_type import TileType
-from entities.player import Facing
+from entities import Facing
 
 tileSize = 64
 
