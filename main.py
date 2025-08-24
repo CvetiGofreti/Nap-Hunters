@@ -4,11 +4,7 @@ import pygame
 from pygame.surface import Surface
 from pygame.font import Font
 
-from screens import MainMenu
-from screens import LevelBuilder
-from screens import LevelSelect
-from screens import Leaderboard
-from screens import GameScreen
+from screens import MainMenu, LevelBuilder, LevelSelect, Leaderboard, GameScreen
 from others import Assets
 
 
