@@ -2,5 +2,7 @@
 ignored-modules=pygame
 ignored-classes=pygame.*,pygame.surface.*
 
+generated-members=pygame.*,pygame.K_*,pygame.MOUSEBUTTON*,pygame.KEYDOWN,pygame.QUIT
+
 [MESSAGES CONTROL]
-disable=C0114
+disable=C0114, C0115
