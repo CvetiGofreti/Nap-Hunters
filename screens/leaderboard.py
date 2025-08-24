@@ -1,129 +1,129 @@
-import pygame
 import json
+import pygame
 
-columnWidth = 160
-startX = 20
-startY = 60
-labelHeight = 30
+COLUMN_WIDTH = 160
+START_X = 20
+START_Y = 60
+LABEL_HEIGHT = 30
+
 
 class Leaderboard:
-    def __init__(self, fontMain, fontSmall, assets):
-        self.fontMain = fontMain
-        self.fontSmall = fontSmall
-        self.scrollOffset = 0
-        self.sortKey = "timestamp"
-        self.sortAscending = False
+    def __init__(self, font_main: pygame.font.Font, font_small: pygame.font.Font, assets) -> None:
+        self.font_main = font_main
+        self.font_small = font_small
+        self.scroll_offset = 0
+        self.sort_key = "timestamp"
+        self.sort_ascending = False
         self.headers = ["team", "level", "time", "points", "timestamp"]
         self.entries = self._load_entries()
         self._sort()
 
-    def _load_entries(self):
+    def _load_entries(self) -> list[dict]:
         try:
             with open("history.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-        except:
+        except (OSError, json.JSONDecodeError):
             return []
 
-        entries = []
-        for team, teamData in data.get("teams", {}).items():
-            for levelName, completions in teamData.get("completed_levels", {}).items():
-                for completion in completions:
-                    entries.append({
-                        "team": team,
-                        "level": levelName,
-                        "time": completion.get("time", 0),
-                        "points": completion.get("points", 0),
-                        "timestamp": completion.get("timestamp", "")
-                    })
-        return entries
+        return [
+            {
+                "team": team,
+                "level": level_name,
+                "time": completion.get("time", 0),
+                "points": completion.get("points", 0),
+                "timestamp": completion.get("timestamp", "")
+            }
+            for team, team_data in data.get("teams", {}).items()
+            for level_name, completions in team_data.get("completed_levels", {}).items()
+            for completion in completions
+        ]
 
-    def _sort(self):
-        self.entries.sort(key = lambda entry: entry[self.sortKey], reverse = not self.sortAscending)
+    def _sort(self) -> None:
+        self.entries.sort(key = lambda entry: entry[self.sort_key], reverse = not self.sort_ascending)
 
-    def handle_event(self, event):
-        maxVisibleEntries = (pygame.display.get_surface().get_height() - 60) // labelHeight
-        maxScroll = max(len(self.entries) - maxVisibleEntries, 0)
+    def handle_event(self, event: pygame.event.Event) -> str | None:
+        max_visible = (pygame.display.get_surface().get_height() - 60) // LABEL_HEIGHT
+        max_scroll = max(len(self.entries) - max_visible, 0)
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 return "mainMenu"
-            elif event.key == pygame.K_DOWN:
-                self.scrollOffset = min(self.scrollOffset + 1, maxScroll)
+            if event.key == pygame.K_DOWN:
+                self.scroll_offset = min(self.scroll_offset + 1, max_scroll)
             elif event.key == pygame.K_UP:
-                self.scrollOffset = max(self.scrollOffset - 1, 0)
+                self.scroll_offset = max(self.scroll_offset - 1, 0)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             #scroll up
             if event.button == 4:
-                self.scrollOffset = max(self.scrollOffset - 1, 0)
+                self.scroll_offset = max(self.scroll_offset - 1, 0)
             # scroll down
             elif event.button == 5:
-                self.scrollOffset = min(self.scrollOffset + 1, maxScroll)
+                self.scroll_offset = min(self.scroll_offset + 1, max_scroll)
             elif event.button == 1:
                 x, y = event.pos
-                labelTop = 20
-                if labelTop <= y <= labelTop + labelHeight:
-                    index = (x - startX) // columnWidth
+                if 20 <= y <= 20 + LABEL_HEIGHT:
+                    index = (x - START_X) // COLUMN_WIDTH
                     if 0 <= index < len(self.headers):
                         header = self.headers[index]
-                        if self.sortKey == header:
-                            self.sortAscending = not self.sortAscending
+                        if self.sort_key == header:
+                            self.sort_ascending = not self.sort_ascending
                         else:
-                            self.sortAscending = True
-                        self.sortKey = header
+                            self.sort_ascending = True
+                        self.sort_key = header
                         self._sort()
         return None
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         pass
 
-    def _draw_scroll(self, screen, maxVisibleEntries, visibleEntries):
-        totalEntries = len(self.entries)
-        if totalEntries > maxVisibleEntries:
-            scrollbarHeight = screen.get_height() - startY
-            scrollbarWidth = 8
-            scrollbarX = screen.get_width() - scrollbarWidth - 4
-            scrollbarY = startY
+    def _draw_scroll(self, screen: pygame.Surface, max_visible: int) -> None:
+        total_entries = len(self.entries)
+        if total_entries > max_visible:
+            scrollbar_height = screen.get_height() - START_Y
+            scrollbar_width = 8
+            scrollbar_x = screen.get_width() - scrollbar_width - 4
+            scrollbar_y = START_Y
 
-            thumbHeight = max(int(scrollbarHeight * (maxVisibleEntries / totalEntries)), 20)
-            maxScroll = totalEntries - maxVisibleEntries
-            scrollRatio = self.scrollOffset / maxScroll if maxScroll > 0 else 0
-            thumbY = scrollbarY + int((scrollbarHeight - thumbHeight) * scrollRatio)
+            thumb_height = max(int(scrollbar_height * (max_visible / total_entries)), 20)
+            max_scroll = total_entries - max_visible
+            scroll_ratio = self.scroll_offset / max_scroll if max_scroll > 0 else 0
+            thumb_y = scrollbar_y + int((scrollbar_height - thumb_height) * scroll_ratio)
 
-            pygame.draw.rect(screen, pygame.Color("dimgray"), (scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight))
-            pygame.draw.rect(screen, pygame.Color("lightgray"), (scrollbarX, thumbY, scrollbarWidth, thumbHeight))
+            pygame.draw.rect(
+                screen,
+                pygame.Color("dimgray"),
+                (scrollbar_x, scrollbar_y, scrollbar_width, scrollbar_height)
+            )
+            pygame.draw.rect(
+                screen,
+                pygame.Color("lightgray"),
+                (scrollbar_x, thumb_y, scrollbar_width, thumb_height)
+            )
 
-    def _draw_enrties(self, screen, visibleEntries):
-        currentY = startY
-        for entry in visibleEntries:
+    def _draw_entries(self, screen: pygame.Surface, entries: list[dict]) -> None:
+        y = START_Y
+        for entry in entries:
             for index, key in enumerate(self.headers):
-                text = str(entry[key])
-                if key == "time":
-                    text = f"{entry[key]:.2f}s"
-                if text == "":
-                    text = "N\A"
-                label = self.fontSmall.render(text, True, pygame.Color("lightgray"))
-                screen.blit(label, (startX + index * columnWidth, currentY))
-            currentY += labelHeight
+                value = f"{entry[key]:.2f}s" if key == "time" else str(entry[key] or "N/A")
+                label = self.font_small.render(value, True, pygame.Color("lightgray"))
+                screen.blit(label, (START_X + index * COLUMN_WIDTH, y))
+            y += LABEL_HEIGHT
 
-    def _draw_labels(self, screen):
-        labelYpos = 20
+    def _draw_labels(self, screen: pygame.Surface) -> None:
+        y = 20
         for index, header in enumerate(self.headers):
-            labelText = header.capitalize()
-            if(header == "timestamp"):
-                labelText = "Completed at"
+            text = "Completed at" if header == "timestamp" else header.capitalize()
+            if header == self.sort_key:
+                arrow = "^" if self.sort_ascending else "v"
+                text += f" {arrow}"
+            label = self.font_main.render(text, True, pygame.Color("white"))
+            screen.blit(label, (START_X + index * COLUMN_WIDTH, y))
 
-            if header == self.sortKey:
-                arrow = "^" if self.sortAscending else "v"
-                labelText += f" {arrow}"
-
-            label = self.fontMain.render(labelText, True, pygame.Color("white"))
-            screen.blit(label, (startX + index * columnWidth, labelYpos))
-
-    def draw(self, screen):
-        maxVisibleEntries = (screen.get_height() - startY) // labelHeight
-        visibleEntries = self.entries[self.scrollOffset:self.scrollOffset + maxVisibleEntries]
+    def draw(self, screen: pygame.Surface) -> None:
+        max_visible = (screen.get_height() - START_Y) // LABEL_HEIGHT
+        visible = self.entries[self.scroll_offset:self.scroll_offset + max_visible]
         screen.fill(pygame.Color("black"))
         self._draw_labels(screen)
-        self._draw_enrties(screen, visibleEntries)
-        self._draw_scroll(screen, maxVisibleEntries, visibleEntries)
+        self._draw_entries(screen, visible)
+        self._draw_scroll(screen, max_visible)
