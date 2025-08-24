@@ -95,7 +95,7 @@ class Player:
             self.rect.top = 0
             self.velocity = 0
 
-    def update_jump(self, dt, grid):
+    def update_jump(self, dt, grid, bookRects):
         if self.jumpPressed and not self.isJumping:
             self.velocity = self.jumpVelocity
             self.isJumping = True
@@ -106,17 +106,25 @@ class Player:
 
         for x, y in self.get_overlapping_tiles():
             tile = grid[y][x]
-            if tile != TileType.FLOOR:
-                continue
+            if tile == TileType.FLOOR:
+                floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
+                if self.rect.colliderect(floorTop):
+                    if self.velocity > 0 and self.prevRect.bottom <= floorTop.top:
+                        self.rect.bottom = floorTop.top
+                        self.velocity = 0
+                        self.isJumping = False
+                    elif self.velocity < 0 and self.prevRect.top >= floorTop.bottom:
+                        self.rect.top = floorTop.bottom
+                        self.velocity = 0
 
-            floorTop = pygame.Rect(x * tileSize, y * tileSize, tileSize, 15)
-            if self.rect.colliderect(floorTop):
-                if self.velocity > 0 and self.prevRect.bottom <= floorTop.top:
-                    self.rect.bottom = floorTop.top
+        for bookRect in bookRects:
+            if self.rect.colliderect(bookRect):
+                if self.velocity > 0 and self.prevRect.bottom <= bookRect.top:
+                    self.rect.bottom = bookRect.top
                     self.velocity = 0
                     self.isJumping = False
-                elif self.velocity < 0 and self.prevRect.top >= floorTop.bottom:
-                    self.rect.top = floorTop.bottom
+                elif self.velocity < 0 and self.prevRect.top >= bookRect.bottom:
+                    self.rect.top = bookRect.bottom
                     self.velocity = 0
 
     def update_move(self, dt, grid):
@@ -165,9 +173,9 @@ class Player:
                     return True
         return False
 
-    def update(self, dt, grid):
+    def update(self, dt, grid, bookRects):
         self.prevRect = self.rect.copy()
         self.update_move(dt, grid)
-        self.update_jump(dt, grid)
+        self.update_jump(dt, grid, bookRects)
         self._check_bottom()
         self._check_top()
