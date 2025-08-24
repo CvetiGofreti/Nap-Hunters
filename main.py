@@ -2,12 +2,12 @@
 
 import pygame
 
-from screens.main_menu import MainMenu
-from screens.level_builder import LevelBuilder
-from screens.level_selector import LevelSelect
-from screens.leaderboard import Leaderboard
-from screens.gameplay import GameScreen
-from others.graphics_loader import Assets
+from screens import MainMenu
+from screens import LevelBuilder
+from screens import LevelSelect
+from screens import Leaderboard
+from screens import GameScreen
+from others import Assets
 
 def main():
     """Initializes and runs the game loop."""

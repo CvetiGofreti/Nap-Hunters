@@ -1,7 +1,6 @@
 import pygame
 import os
-from others.tile_type import TileType
-from others.spray_type import SprayType
+from others import SprayType
 
 tileSize = 64
 
@@ -19,7 +18,7 @@ class Spray:
 
         for player in players:
             if self.active and self.collideRect.colliderect(player.rect):
-                player.reapawn()
+                player.respawn()
 
     def draw(self, screen):
         if os.getenv("DEBUG") == "1":

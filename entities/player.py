@@ -1,8 +1,9 @@
 import pygame
 import os
-from others.tile_type import TileType
 from enum import IntEnum
-from others.controls_type import ControlsType
+
+from others import TileType
+from others import ControlsType
 
 tileSize = 64
 

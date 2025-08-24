@@ -1,16 +1,16 @@
-import os
 import json
 import pygame
-import others.global_values
-from others.tile_type import TileType
-from others.floor_type import FloorType
-from others.controls_type import ControlsType
-from entities.player import Player
-from entities.snack import Snack
-from others.level_history_manager import LevelHistoryManager
-from entities.books import MovableBooks
-from entities.button import Button
-from entities.spray import Spray
+
+import others
+from others import TileType
+from others import FloorType
+from others import ControlsType
+from entities import Player
+from entities import Snack
+from others import LevelHistoryManager
+from entities import MovableBooks
+from entities import Button
+from entities import Spray
 
 tileSize = 64
 
@@ -131,7 +131,7 @@ class GameScreen:
 
             historyManager = LevelHistoryManager()
             historyManager.record_attempt(
-                others.global_values.currentTeamName,
+                others.global_values.current_team_name,
                 self.levelName,
                 elapsedTime,
                 totalPoints

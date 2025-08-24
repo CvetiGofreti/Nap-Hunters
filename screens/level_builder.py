@@ -1,10 +1,13 @@
-import pygame, os, json
-from others.tile_type import TileType
-from others.floor_type import FloorType
+import pygame
+import os
+import json
 from datetime import datetime
-from others.text_input import TextInputBox
-from others.button import Button
-from others.spray_type import SprayType
+
+from others import TileType
+from others import FloorType
+from others import TextInputBox
+from others import Button
+from others import SprayType
 
 tileSize = 64
 paletteWidth = 192

@@ -1,6 +1,7 @@
 import pygame
 import os
-from others.tile_type import TileType
+
+from others import TileType
 
 tileSize = 64
 

@@ -1,8 +1,8 @@
 import pygame
 
-import others.global_values
-from others.button import Button
-from others.text_input import TextInputBox
+import others
+from others import Button
+from others import TextInputBox
 
 BUTTON_HEIGHT = 70
 BUTTON_WIDTH = 260
@@ -51,7 +51,7 @@ class MainMenu:
             input_x, 20, INPUT_WIDTH, INPUT_HEIGHT, font_small, "Enter team name"
             )
 
-        self.team_name_box.label = others.global_values.currentTeamName
+        self.team_name_box.label = others.global_values.current_team_name
 
     def _set_next(self, screen_name):
         self.next_screen = screen_name
@@ -67,7 +67,7 @@ class MainMenu:
 
     def update(self, dt):
         self.team_name_box.update(dt)
-        others.global_values.currentTeamName = self.team_name_box.label.strip()
+        others.global_values.current_team_name = self.team_name_box.label.strip()
 
     def draw(self, screen):
         self.team_name_box.draw(screen)

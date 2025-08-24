@@ -1,6 +1,5 @@
 import pygame
 import json
-from datetime import datetime
 
 columnWidth = 160
 startX = 20

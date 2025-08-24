@@ -1,6 +1,9 @@
-import pygame, os, json
-from others.button import Button
-import others.global_values
+import pygame
+import os
+import json
+
+from others import Button
+import others
 
 levelbuttonHeight = 56
 levelbuttonPadding = 20
@@ -48,7 +51,7 @@ class LevelSelect:
             y += levelbuttonHeight + levelbuttonVerticalPadding
 
     def _load_passed_levels(self):
-        teamName = others.global_values.currentTeamName
+        teamName = others.global_values.current_team_name
         try:
             with open("history.json", "r", encoding="utf-8") as file:
                 data = json.load(file)

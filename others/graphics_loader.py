@@ -1,4 +1,5 @@
 import pygame
+
 from others.tile_type import TileType
 from others.floor_type import FloorType
 from others.spray_type import SprayType
