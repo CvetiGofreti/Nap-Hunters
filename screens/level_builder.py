@@ -4,6 +4,7 @@ from others.floor_type import FloorType
 from datetime import datetime
 from others.text_input import TextInputBox
 from others.button import Button
+from others.spray_type import SprayType
 
 tileSize = 64
 paletteWidth = 192
@@ -35,7 +36,9 @@ class LevelBuilder:
         x0, y0 = self.screenWidth + 16, 16
         self.items = [{"type": TileType.FLOOR, "name": "Floor", "rect": pygame.Rect(x0, y0, tileSize, tileSize), "asset": assets.floorVariants[FloorType.MID]},
                       {"type": TileType.SNACK, "name": "Snack", "rect": pygame.Rect(x0 + 64 + 16, y0, tileSize, tileSize), "asset": assets.entities[TileType.SNACK]},
-                      {"type": TileType.BOOKS, "name": "Books", "rect": pygame.Rect(x0, y0 + 64 + 32, tileSize, tileSize), "asset": assets.entities[TileType.BOOKS]}]
+                      {"type": TileType.BOOKS, "name": "Books", "rect": pygame.Rect(x0, y0 + 64 + 32, tileSize, tileSize), "asset": assets.entities[TileType.BOOKS]},
+                      {"type": TileType.SPRAY, "name": "Water spray", "rect": pygame.Rect(x0 + 64 + 16, y0 + 64 + 32, tileSize, tileSize), "asset": assets.sprays[SprayType.OFF]},
+                      {"type": TileType.BUTTON, "name": "Button", "rect": pygame.Rect(x0, y0 + 64 + 32 + 64 + 32, tileSize, tileSize), "asset": assets.entities[TileType.BUTTON]}]
         
         self.selectedItemType = TileType.FLOOR
         self.hoverCell = None
@@ -220,6 +223,10 @@ class LevelBuilder:
                     screen.blit(self.assets.entities[TileType.SNACK], (x*tileSize, y*tileSize))
                 if self._get_tyle_type_at(x, y) == TileType.BOOKS:
                     screen.blit(self.assets.entities[TileType.BOOKS], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.SPRAY:
+                    screen.blit(self.assets.sprays[SprayType.OFF], (x*tileSize, y*tileSize))
+                if self._get_tyle_type_at(x, y) == TileType.BUTTON:
+                    screen.blit(self.assets.entities[TileType.BUTTON], (x*tileSize, y*tileSize))
 
     def _draw_players(self, screen):
         for y in range(self.tileCountHeight):

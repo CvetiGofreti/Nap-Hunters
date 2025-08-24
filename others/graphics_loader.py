@@ -1,6 +1,7 @@
 import pygame
 from others.tile_type import TileType
 from others.floor_type import FloorType
+from others.spray_type import SprayType
 
 tileSize = 64
 
@@ -26,7 +27,16 @@ class Assets:
 
         self.entities = {
             TileType.SNACK: self._load64("graphics/entities/snack.png"),
-            TileType.BOOKS: self._load64("graphics/entities/books.png")
+            TileType.BOOKS: self._load64("graphics/entities/books.png"),
+            TileType.BUTTON: self._load64("graphics/spray/button.png")
+        }
+
+        self.sprays = {
+            SprayType.OFF:       self._load64("graphics/spray/spray_off.png"),
+            SprayType.ON:        self._load64("graphics/spray/spray_on.png"),
+            SprayType.ON_BOTTOM: self._load64("graphics/spray/spray_on_bottom.png"),
+            SprayType.ON_MIDDLE: self._load64("graphics/spray/spray_on_middle.png"),
+            SprayType.ON_TOP:    self._load64("graphics/spray/spray_on_top.png")
         }
 
         self.wall = self._load_original("graphics/levels/wall.png")

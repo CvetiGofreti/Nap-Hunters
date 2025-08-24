@@ -10,3 +10,5 @@ class TileType(IntEnum):
     INVALID = 6
     SNACK = 7
     BOOKS = 8
+    SPRAY = 9
+    BUTTON = 10
