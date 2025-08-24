@@ -58,10 +58,10 @@ class LevelSelect(BaseScreen):
                 pos = (rect.x, rect.y),
                 size = (rect.width, rect.height),
                 label = name,
-                onClick = lambda path = full_path: self._set_next(path),
+                on_click = lambda path = full_path: self._set_next(path),
                 font = self.font_small,
-                showCheck = was_passed,
-                checkImage = self.assets.passedLevelImage
+                show_check = was_passed,
+                check_image = self.assets.passed_level_image
             )
             self.level_buttons.append(button)
             y += LEVEL_BUTTON_HEIGHT + LEVEL_BUTTON_VERTICAL_PADDING

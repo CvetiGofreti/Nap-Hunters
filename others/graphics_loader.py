@@ -9,14 +9,14 @@ tileSize = 64
 
 class Assets:
     def __init__(self) -> None:
-        self.floorVariants: dict[FloorType, Surface] = {
+        self.floor_variants: dict[FloorType, Surface] = {
             FloorType.MID: self._load64("graphics/levels/floor.png"),
             FloorType.LEFT: self._load64("graphics/levels/floor_left.png"),
             FloorType.RIGHT: self._load64("graphics/levels/floor_right.png"),
             FloorType.FLOOR_SINGLE: self._load64("graphics/levels/floor_both.png"),
         }
 
-        self.playerImages: dict[TileType, Surface] = {
+        self.player_images: dict[TileType, Surface] = {
             TileType.BLUE_PLAYER: self._load64("graphics/players/playerBlue.png"),
             TileType.RED_PLAYER:  self._load64("graphics/players/playerRed.png"),
         }
@@ -40,10 +40,10 @@ class Assets:
             SprayType.ON_TOP:    self._load64("graphics/spray/spray_on_top.png")
         }
 
-        self.buttonPressed: Surface = self._load64("graphics/spray/button_pressed.png")
+        self.button_pressed: Surface = self._load64("graphics/spray/button_pressed.png")
         self.wall: Surface = self._load_original("graphics/levels/wall.png")
         self.wall = pygame.transform.scale(self.wall, pygame.display.get_surface().get_size())
-        self.passedLevelImage: Surface = self._load64("graphics/levels/levelPassed.png")
+        self.passed_level_image: Surface = self._load64("graphics/levels/levelPassed.png")
 
     def _load64(self, path: str) -> Surface:
         img = pygame.image.load(path).convert_alpha()

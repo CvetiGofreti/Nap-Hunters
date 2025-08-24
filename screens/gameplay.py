@@ -73,7 +73,7 @@ class GameScreen(BaseScreen):
                         }
                         self.players.append(
                             Player(
-                                self.assets.playerImages[tile_type],
+                                self.assets.player_images[tile_type],
                                 (x, y),
                                 controls,
                                 TileType.BLUE_BED
@@ -88,7 +88,7 @@ class GameScreen(BaseScreen):
                         }
                         self.players.append(
                             Player(
-                                self.assets.playerImages[tile_type],
+                                self.assets.player_images[tile_type],
                                 (x, y),
                                 controls,
                                 TileType.RED_BED
@@ -228,7 +228,7 @@ class GameScreen(BaseScreen):
                     case TileType.FLOOR:
                         variant = self._pick_floor_variant(self.grid, x, y)
                         screen.blit(
-                            self.assets.floorVariants[variant],
+                            self.assets.floor_variants[variant],
                             (x * TILE_SIZE, y * TILE_SIZE)
                         )
                     case TileType.RED_BED | TileType.BLUE_BED:

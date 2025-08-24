@@ -3,33 +3,33 @@ import pygame
 class TextInputBox:
     def __init__(self, x, y, width, height, font, placeholder, colorText = pygame.Color("black"), colorInactive = pygame.Color('dodgerblue'), colorActive = pygame.Color('blue'), ):
         self.rect = pygame.Rect(x, y, width, height)
-        self.colorInactive = colorInactive
-        self.colorActive = colorActive
-        self.outlineColor = self.colorInactive
+        self.color_inactive = colorInactive
+        self.color_active = colorActive
+        self.outline_color = self.color_inactive
         self.font = font
         self.label = ''
         self.hint = placeholder
         self.active = False
-        self.backspaceHeld = False
-        self.backspaceTimer = 0
-        self.repeatDelay = 0.4
-        self.repeatInterval = 0.05
-        self.backspaceFirstDelete = True
-        self.colorText = colorText
+        self.backspace_held = False
+        self.backspace_timer = 0
+        self.repeat_delay = 0.4
+        self.repeat_interval = 0.05
+        self.backspace_first_delete = True
+        self.color_text = colorText
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.active = self.rect.collidepoint(event.pos)
-            self.outlineColor = self.colorActive if self.active else self.colorInactive
+            self.outline_color = self.color_active if self.active else self.color_inactive
 
         if event.type == pygame.KEYDOWN and self.active:
             if event.key == pygame.K_RETURN:
                 self.active = False
-                self.outlineColor = self.colorInactive
+                self.outline_color = self.color_inactive
             elif event.key == pygame.K_BACKSPACE:
-                self.backspaceHeld = True
-                self.backspaceFirstDelete = True
-                self.backspaceTimer = 0
+                self.backspace_held = True
+                self.backspace_first_delete = True
+                self.backspace_timer = 0
                 self.label = self.label[:-1]
             else:
                 newLabel = self.label + event.unicode
@@ -38,26 +38,26 @@ class TextInputBox:
                     self.label = newLabel
                 
         elif event.type == pygame.KEYUP and event.key == pygame.K_BACKSPACE:
-            self.backspaceHeld = False
+            self.backspace_held = False
 
     def update(self, dt):
-        if self.active and self.backspaceHeld:
-            self.backspaceTimer += dt
+        if self.active and self.backspace_held:
+            self.backspace_timer += dt
     
-            if self.backspaceFirstDelete:
-                if self.backspaceTimer >= self.repeatDelay:
-                    self.backspaceFirstDelete = False
-                    self.backspaceTimer = 0
+            if self.backspace_first_delete:
+                if self.backspace_timer >= self.repeat_delay:
+                    self.backspace_first_delete = False
+                    self.backspace_timer = 0
             else:
-                while self.backspaceTimer >= self.repeatInterval:
-                    self.backspaceTimer -= self.repeatInterval
+                while self.backspace_timer >= self.repeat_interval:
+                    self.backspace_timer -= self.repeat_interval
                     self.label = self.label[:-1]
 
     def draw(self, screen):
-        displayLabel = self.label if self.label or self.active else self.hint
-        labelColor = self.colorText if self.label else self.colorInactive
-        textSurface = self.font.render(displayLabel, True, labelColor)
-        textX = self.rect.centerx - textSurface.get_width() // 2
-        textY = self.rect.centery - textSurface.get_height() // 2
-        screen.blit(textSurface, (textX, textY))
-        pygame.draw.rect(screen, self.outlineColor, self.rect, 2, 8)
+        display_label = self.label if self.label or self.active else self.hint
+        label_color = self.color_text if self.label else self.color_inactive
+        text_surface = self.font.render(display_label, True, label_color)
+        text_x = self.rect.centerx - text_surface.get_width() // 2
+        text_y = self.rect.centery - text_surface.get_height() // 2
+        screen.blit(text_surface, (text_x, text_y))
+        pygame.draw.rect(screen, self.outline_color, self.rect, 2, 8)

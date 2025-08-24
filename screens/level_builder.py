@@ -69,7 +69,7 @@ class LevelBuilder(BaseScreen):
                 "type": TileType.FLOOR,
                 "name": "Floor",
                 "rect": pygame.Rect(x0, y0, TILE_SIZE, TILE_SIZE),
-                "asset": assets.floorVariants[FloorType.MID],
+                "asset": assets.floor_variants[FloorType.MID],
             },
             {
                 "type": TileType.SNACK,
@@ -114,8 +114,8 @@ class LevelBuilder(BaseScreen):
             pos = button_pos,
             size = button_size,
             label = "Save Level",
-            onClick = self._save_level,
-            font = self.font_small,
+            on_click = self._save_level,
+            font = self.font_small
         )
 
         input_width = PALETTE_WIDTH - 32
@@ -312,7 +312,7 @@ class LevelBuilder(BaseScreen):
                 item_position = (x * TILE_SIZE, y * TILE_SIZE)
                 if tile_type == TileType.FLOOR:
                     variant = self._pick_floor_variant(x, y)
-                    screen.blit(self.assets.floorVariants[variant], item_position)
+                    screen.blit(self.assets.floor_variants[variant], item_position)
                 elif tile_type == TileType.SNACK:
                     screen.blit(self.assets.entities[TileType.SNACK], item_position)
                 elif tile_type == TileType.BOOKS:
@@ -328,12 +328,12 @@ class LevelBuilder(BaseScreen):
                 tile_type = self._get_tyle_type_at(x, y)
                 if tile_type == TileType.RED_PLAYER:
                     screen.blit(
-                        self.assets.playerImages[TileType.RED_PLAYER],
+                        self.assets.player_images[TileType.RED_PLAYER],
                         (x * TILE_SIZE, y * TILE_SIZE),
                     )
                 elif tile_type == TileType.BLUE_PLAYER:
                     screen.blit(
-                        self.assets.playerImages[TileType.BLUE_PLAYER],
+                        self.assets.player_images[TileType.BLUE_PLAYER],
                         (x * TILE_SIZE, y * TILE_SIZE),
                     )
 

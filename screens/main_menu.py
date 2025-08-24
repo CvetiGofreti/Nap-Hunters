@@ -41,7 +41,7 @@ class MainMenu(BaseScreen):
                 pos = (start_x, start_y + index * (BUTTON_HEIGHT + BUTTON_SPACING)),
                 size = (BUTTON_WIDTH, BUTTON_HEIGHT),
                 label = label,
-                onClick = lambda name=screen: self._set_next(name),
+                on_click = lambda name=screen: self._set_next(name),
                 font = font_main
             )
             for index, (label, screen) in enumerate(buttons_info)

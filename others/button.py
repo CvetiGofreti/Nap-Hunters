@@ -1,34 +1,50 @@
+
+from typing import Callable, Optional, Tuple
+
 import pygame
+from pygame.surface import Surface
+
 
 class Button:
-    def __init__(self, pos, size, label, onClick, font, textColor = pygame.Color("white"), backgroundColor = pygame.Color("royalblue3"), showCheck = False, checkImage = None):
-        self.rect = pygame.Rect(pos, size)
-        self.label = label
-        self.onClick = onClick
-        self.font = font
-        self.textColor = textColor
-        self.backgroundColor = backgroundColor
-        self.showCheck = showCheck
-        self.checkImage = checkImage
-        self.renderedLabel = self.font.render(self.label, True, self.textColor)
+    def __init__(
+        self,
+        pos: Tuple[int, int],
+        size: Tuple[int, int],
+        label: str,
+        on_click: Optional[Callable[[], None]] = None,
+        font: Optional[pygame.font.Font] = None,
+        text_color: pygame.Color = pygame.Color("white"),
+        background_color: pygame.Color = pygame.Color("royalblue3"),
+        show_check: bool = False,
+        check_image: Optional[Surface] = None
+    ) -> None:
+        self.rect: pygame.Rect = pygame.Rect(pos, size)
+        self.label: str = label
+        self.on_click: Optional[Callable[[], None]] = on_click
+        self.font: pygame.font.Font = font or pygame.font.Font(None, 24)
+        self.text_color: pygame.Color = text_color
+        self.background_color: pygame.Color = background_color
+        self.show_check: bool = show_check
+        self.check_image: Optional[Surface] = check_image
+        self.rendered_label: Surface = self.font.render(self.label, True, self.text_color)
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.rect.collidepoint(event.pos):
-                if callable(self.onClick):
-                    self.onClick()
+                if self.on_click is not None:
+                    self.on_click()
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.backgroundColor, self.rect, border_radius=8)
+    def draw(self, screen: Surface) -> None:
+        pygame.draw.rect(screen, self.background_color, self.rect, border_radius=8)
 
-        labelPos = (
-            self.rect.centerx - self.renderedLabel.get_width() // 2,
-            self.rect.centery - self.renderedLabel.get_height() // 2
+        label_pos = (
+            self.rect.centerx - self.rendered_label.get_width() // 2,
+            self.rect.centery - self.rendered_label.get_height() // 2,
         )
-        screen.blit(self.renderedLabel, labelPos)
+        screen.blit(self.rendered_label, label_pos)
 
-        if self.showCheck and self.checkImage:
-            checkRect = self.checkImage.get_rect()
-            checkRect.centery = self.rect.centery
-            checkRect.right = self.rect.right - 10
-            screen.blit(self.checkImage, checkRect)
+        if self.show_check and self.check_image is not None:
+            check_rect = self.check_image.get_rect()
+            check_rect.centery = self.rect.centery
+            check_rect.right = self.rect.right - 10
+            screen.blit(self.check_image, check_rect)

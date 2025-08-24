@@ -8,7 +8,7 @@ tileSize = 64
 class Button:
     def __init__(self, x, y, assets):
         self.image = assets.entities[TileType.BUTTON]
-        self.imagePressed = assets.buttonPressed
+        self.imagePressed = assets.button_pressed
         self.rect = pygame.Rect(x * tileSize, y * tileSize, tileSize, tileSize)
         collideOffset = 32
         self.collideRect = pygame.Rect(x * tileSize + collideOffset // 2, y * tileSize + collideOffset, tileSize - collideOffset, tileSize - collideOffset)
